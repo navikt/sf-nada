@@ -62,6 +62,10 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+      - name: Merge YAML
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew mergeYamlTask
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: ${{ inputs.DEPLOY_CLUSTER }}
