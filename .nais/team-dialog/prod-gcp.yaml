@@ -1,6 +1,6 @@
 spec:
   ingresses:
-    - "https://sf-nada-dialog.intern.dev.nav.no"
+    - "https://sf-nada-dialog-tmp.intern.nav.no"
   gcp:
     bigQueryDatasets:
       - name: arbeidsgiver_aktivitet

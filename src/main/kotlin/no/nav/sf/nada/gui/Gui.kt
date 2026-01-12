@@ -72,6 +72,8 @@ object Gui {
         }
         File("/tmp/testcallResult").writeText(result)
 
+        result += "\n"
+
 //        if (yesterday > 100) {
 //            total = 1000 // Will likely be hitting max - not worth big operation query (TODO could improve fe)
 //        } else {
@@ -93,7 +95,7 @@ object Gui {
                 val obj = JsonParser.parseString(responseTotal.bodyString()) as JsonObject
                 val totalSize = obj["totalSize"].asInt
                 Metrics.latestTotalFromTestCall.labels(table).set(totalSize.toDouble())
-                result = "Total number of records found is $totalSize"
+                result += "Total number of records found is $totalSize"
                 log.info { "Total number of records found is $totalSize" }
                 total = totalSize
             } catch (e: Exception) {
