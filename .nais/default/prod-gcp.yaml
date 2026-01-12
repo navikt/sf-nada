@@ -27,7 +27,6 @@ spec:
   observability:
     logging:
       destinations:
-        - id: elastic
         - id: loki
   resources:
     limits:
@@ -52,8 +51,8 @@ spec:
     - name: MAPDEF_FILE
       value: '/mapdef/replace-with-namespace/prod.json'
     - name: SF_TOKENHOST
-      value: 'https://test.salesforce.com'
+      value: 'https://login.salesforce.com'
     - name: SF_QUERY_BASE
-      value: '/services/data/v57.0/query?q='
+      value: '/services/data/v65.0/query?q='
     - name: DEPLOY_CLUSTER
       value: '{{ DEPLOY_CLUSTER }}'
