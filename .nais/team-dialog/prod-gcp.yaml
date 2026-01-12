@@ -1,0 +1,14 @@
+spec:
+  ingresses:
+    - "https://sf-nada-dialog.intern.dev.nav.no"
+  gcp:
+    bigQueryDatasets:
+      - name: arbeidsgiver_aktivitet
+        permission: READWRITE
+      - name: arbeidsgiver_diverse
+        permission: READWRITE
+  env:
+    - name: POST_TO_BIGQUERY
+      value: 'true'
+    - name: EXCLUDE_TABLES
+      value: ''

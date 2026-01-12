@@ -56,4 +56,11 @@ class QueryParseTest {
             queryWithDateRestriction2,
         )
     }
+
+//    @Test
+//    fun utility() {
+//        val query = exampleMapDef["dataset"]!!["table"]!!.query
+//        println(query)
+//        println(query.toSoqlCountQuery())
+//    }
 }

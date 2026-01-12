@@ -6,6 +6,9 @@ on:
       DEPLOY_CLUSTER:
         required: true
         type: string
+      DEPLOY_NAMESPACE:
+        required: true
+        type: string
 jobs:
   test:
     name: Run tests
@@ -21,7 +24,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew test
   build:
-    name: Build and push Docker container
+    name: Build and push Docker container for ${{ inputs.DEPLOY_NAMESPACE }}
     needs: test
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -49,9 +52,9 @@ jobs:
         uses: nais/docker-build-push@v0
         id: docker-push
         with:
-          team: team-dialog
+          team: ${{ inputs.DEPLOY_NAMESPACE }}
   deploy:
-    name: Deploy sf-nada-crm to ${{ inputs.DEPLOY_CLUSTER }}
+    name: Deploy sf-nada to ${{ inputs.DEPLOY_CLUSTER }}
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -62,5 +65,5 @@ jobs:
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: ${{ inputs.DEPLOY_CLUSTER }}
-          RESOURCE: .nais/${{ inputs.DEPLOY_CLUSTER }}.yaml
+          RESOURCE: .nais/${{ inputs.DEPLOY_NAMESPACE }}/${{ inputs.DEPLOY_CLUSTER }}.yaml
           VAR: image=${{ needs.build.outputs.image }},DEPLOY_CLUSTER=${{ inputs.DEPLOY_CLUSTER}}

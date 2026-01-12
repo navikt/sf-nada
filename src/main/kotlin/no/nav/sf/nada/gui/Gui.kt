@@ -72,30 +72,37 @@ object Gui {
         }
         File("/tmp/testcallResult").writeText(result)
 
-        if (yesterday > 100) {
-            total = 1000 // Will likely be hitting max - not worth big operation query (TODO could improve fe)
+//        if (yesterday > 100) {
+//            total = 1000 // Will likely be hitting max - not worth big operation query (TODO could improve fe)
+//        } else {
+        val responseTotal = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.toSoqlCountQuery()}")
+        File("/tmp/responseAtTotalCall").writeText(
+            "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.toSoqlCountQuery()}\nRESPONSE:\n" +
+                responseTotal.toMessage(),
+        )
+        if (responseTotal.status.code == 400) {
+            result += "Bad request: " + responseTotal.bodyString()
+            File("/tmp/badRequestAtTotalCall").writeText(responseTotal.bodyString())
+            success = false
+        } else if (responseTotal.status.code == 504) {
+            result += "Gateway timeout: " + responseTotal.bodyString()
+            File("/tmp/gatewayTimeoutAtTotalCall").writeText(responseTotal.bodyString())
+            success = false
         } else {
-            val responseTotal = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}$query")
-            File("/tmp/responseAtTotalCall").writeText(responseTotal.toMessage())
-            if (responseTotal.status.code == 400) {
-                result += "Bad request: " + responseTotal.bodyString()
-                File("/tmp/badRequestAtTotalCall").writeText(responseTotal.bodyString())
+            try {
+                val obj = JsonParser.parseString(responseTotal.bodyString()) as JsonObject
+                val totalSize = obj["totalSize"].asInt
+                Metrics.latestTotalFromTestCall.labels(table).set(totalSize.toDouble())
+                result = "Total number of records found is $totalSize"
+                log.info { "Total number of records found is $totalSize" }
+                total = totalSize
+            } catch (e: Exception) {
                 success = false
-            } else {
-                try {
-                    val obj = JsonParser.parseString(responseTotal.bodyString()) as JsonObject
-                    val totalSize = obj["totalSize"].asInt
-                    Metrics.latestTotalFromTestCall.labels(table).set(totalSize.toDouble())
-                    result = "Total number of records found is $totalSize"
-                    log.info { "Total number of records found is $totalSize" }
-                    total = totalSize
-                } catch (e: Exception) {
-                    success = false
-                    result += e.message
-                    File("/tmp/exceptionAtTotalCall").writeText(e.toString() + "\n" + e.stackTraceToString())
-                }
+                result += e.message
+                File("/tmp/exceptionAtTotalCall").writeText(e.toString() + "\n" + e.stackTraceToString())
             }
         }
+//        }
 
         val response =
             if (success) {
@@ -107,6 +114,23 @@ object Gui {
 
         File("/tmp/lasttestcallresponse").writeText(response.toMessage())
         response
+    }
+
+    private val FROM_REGEX =
+        Regex(
+            pattern = "\\bFROM\\b",
+            option = RegexOption.IGNORE_CASE,
+        )
+
+    fun String.toSoqlCountQuery(): String {
+        val fromMatch =
+            FROM_REGEX.find(this)
+                ?: throw IllegalArgumentException("Invalid SOQL query: missing FROM clause")
+
+        // Everything from FROM ... onward is kept
+        val fromClause = this.substring(fromMatch.range.first)
+
+        return "SELECT+COUNT()+$fromClause"
     }
 
     // Data classes for metadata

@@ -1,12 +1,12 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  name: sf-nada-dialog
-  namespace: team-dialog
+  name: sf-nada
+  namespace: replace-with-namespace
   labels:
-    team: team-dialog
+    team: replace-with-namespace
 spec:
-  image: {{ image }}
+  image: '{{ image }}'
   port: 8080
   replicas:
     min: 1
@@ -35,31 +35,25 @@ spec:
     requests:
       cpu: 10m
       memory: 1Gi
-  ingresses:
-    - "https://sf-nada-dialog.intern.dev.nav.no"
   envFrom:
-    - secret: sf-nada-preprod
+    - secret: sf-nada-prod
   gcp:
     bigQueryDatasets:
-      - name: arbeidsgiver_aktiviteter_dev
+      - name: arbeidsgiver_aktivitet
         permission: READWRITE
-      - name: arbeidsgiver_data_dev
+      - name: arbeidsgiver_diverse
         permission: READWRITE
   accessPolicy:
     outbound:
       external:
-        - host: test.salesforce.com
-        - host: navdialog--preprod.sandbox.my.salesforce.com
+        - host: login.salesforce.com
+        - host: navdialog.my.salesforce.com
   env:
-    - name: POST_TO_BIGQUERY
-      value: 'true'
-    - name: EXCLUDE_TABLES
-      value: 'arbeidsgiver_oppgaver_dev'
     - name: MAPDEF_FILE
-      value: '/mapdef/dev.json'
+      value: '/replace-with-namespace/mapdef/prod.json'
     - name: SF_TOKENHOST
       value: 'https://test.salesforce.com'
     - name: SF_QUERY_BASE
-      value : '/services/data/v57.0/query?q='
+      value: '/services/data/v57.0/query?q='
     - name: DEPLOY_CLUSTER
-      value: {{ DEPLOY_CLUSTER }}
+      value: '{{ DEPLOY_CLUSTER }}'

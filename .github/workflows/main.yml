@@ -11,3 +11,4 @@ jobs:
       contents: write
     with:
       DEPLOY_CLUSTER: dev-gcp
+      DEPLOY_NAMESPACE: team-dialog
