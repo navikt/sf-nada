@@ -10,6 +10,7 @@ import mu.KotlinLogging
 import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.Metrics
 import no.nav.sf.nada.TableDef
+import no.nav.sf.nada.addHistoryLimit
 import no.nav.sf.nada.addYesterdayRestriction
 import no.nav.sf.nada.application
 import no.nav.sf.nada.bulk.BulkOperation
@@ -72,12 +73,12 @@ object Gui {
         }
         File("/tmp/testcallResult").writeText(result)
 
-        result += "\n"
+        result += "<br>"
 
 //        if (yesterday > 100) {
 //            total = 1000 // Will likely be hitting max - not worth big operation query (TODO could improve fe)
 //        } else {
-        val responseTotal = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.toSoqlCountQuery()}")
+        val responseTotal = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(90)}")
         File("/tmp/responseAtTotalCall").writeText(
             "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.toSoqlCountQuery()}\nRESPONSE:\n" +
                 responseTotal.toMessage(),
