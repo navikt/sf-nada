@@ -78,9 +78,9 @@ object Gui {
 //        if (yesterday > 100) {
 //            total = 1000 // Will likely be hitting max - not worth big operation query (TODO could improve fe)
 //        } else {
-        val responseTotal = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(90)}")
+        val responseTotal = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(5)}")
         File("/tmp/responseAtTotalCall").writeText(
-            "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.toSoqlCountQuery()}\nRESPONSE:\n" +
+            "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(5)}\nRESPONSE:\n" +
                 responseTotal.toMessage(),
         )
         if (responseTotal.status.code == 400) {
