@@ -50,7 +50,7 @@ spec:
         - host: navdialog.my.salesforce.com
   env:
     - name: MAPDEF_FILE
-      value: '/replace-with-namespace/mapdef/prod.json'
+      value: '/mapdef/replace-with-namespace/prod.json'
     - name: SF_TOKENHOST
       value: 'https://test.salesforce.com'
     - name: SF_QUERY_BASE
