@@ -7,10 +7,10 @@ The sf-nada app is an integration between salesforce and the NADA data product s
 Its default behaviour is to run a work session each morning (~02:00) where it fetches all data records from salesforce
 last modified yesterday and post them to corresponding bigquery tables of the NADA solution.
 
-The behaviour can be changed with config in [dev-gcp.yaml](.nais/dev-gcp.yaml) and [prod-gcp.yaml](.nais/prod-gcp.yaml)
+The behaviour can be changed with config in [dev-gcp.yaml](.nais/team-dialog/dev-gcp.yaml) and [prod-gcp.yaml](.nais/team-dialog/prod-gcp.yaml)
 
-The query and mapping for each data product is set up in the map definition files: [dev.json](src/main/resources/mapdef/dev.json)
-and [prod.json](src/main/resources/mapdef/prod.json)
+The query and mapping for each data product is set up in the map definition files: [dev.json](src/main/resources/mapdef/team-dialog/dev.json)
+and [prod.json](src/main/resources/mapdef/team-dialog/prod.json)
 
 Each push to this repository will trigger a deployment for a namespace instance to either dev-gcp or prod-gcp, defined in [main.yml](.github/workflows/main.yml)
 
@@ -27,7 +27,7 @@ Prod: https://sf-nada-dialog.intern.nav.no/internal/gui
 
 ### Config
 
-You will see the current active config on the examine-ingresses above. They are set by env-variables in [dev-gcp.yaml](.nais/dev-gcp.yaml) and [prod-gcp.yaml](.nais/prod-gcp.yaml)
+You will see the current active config on the examine-ingresses above. They are set by env-variables in [dev-gcp.yaml](.nais/team-dialog/dev-gcp.yaml) and [prod-gcp.yaml](.nais/team-dialog/prod-gcp.yaml)
 #### POST_TO_BIGQUERY
 Default is true. Whether you will actually send the fetched data to bigquery or not.
 #### EXCLUDE_TABLES
@@ -35,8 +35,8 @@ Default is ''. A comma seperated list of tables to ignore when fetching data. Us
 
 ### Map definition
 
-The query and mapping for each data product is setup in the map definition files [dev.json](src/main/resources/mapdef/dev.json)
-and [prod.json](src/main/resources/mapdef/prod.json).
+The query and mapping for each data product is setup in the map definition files [dev.json](src/main/resources/mapdef/team-dialog/dev.json)
+and [prod.json](src/main/resources/mapdef/team-dialog/prod.json).
 They are well formed json-objects defined as:
 ```
 {
