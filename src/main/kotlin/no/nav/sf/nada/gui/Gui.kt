@@ -50,7 +50,7 @@ object Gui {
 
         var success = true
         var yesterday = 0
-        var total = 0
+        var last5 = 0
 
         val responseDate = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}$queryYesterday")
         File("/tmp/responseAtDateCall").writeText(responseDate.toMessage())
@@ -79,17 +79,17 @@ object Gui {
 //            total = 1000 // Will likely be hitting max - not worth big operation query (TODO could improve fe)
 //        } else {
         val responseTotal = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(5)}")
-        File("/tmp/responseAtTotalCall").writeText(
+        File("/tmp/responseLast5Call").writeText(
             "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(5)}\nRESPONSE:\n" +
                 responseTotal.toMessage(),
         )
         if (responseTotal.status.code == 400) {
             result += "Bad request: " + responseTotal.bodyString()
-            File("/tmp/badRequestAtTotalCall").writeText(responseTotal.bodyString())
+            File("/tmp/badRequestLast5Call").writeText(responseTotal.bodyString())
             success = false
         } else if (responseTotal.status.code == 504) {
             result += "Gateway timeout: " + responseTotal.bodyString()
-            File("/tmp/gatewayTimeoutAtTotalCall").writeText(responseTotal.bodyString())
+            File("/tmp/gatewayTimeoutLast5Call").writeText(responseTotal.bodyString())
             success = false
         } else {
             try {
@@ -98,7 +98,7 @@ object Gui {
                 Metrics.latestTotalFromTestCall.labels(table).set(totalSize.toDouble())
                 result += "Total number of records found is $totalSize"
                 log.info { "Total number of records found is $totalSize" }
-                total = totalSize
+                last5 = totalSize
             } catch (e: Exception) {
                 success = false
                 result += e.message
@@ -109,7 +109,7 @@ object Gui {
 
         val response =
             if (success) {
-                val pair = Pair(yesterday, total)
+                val pair = Pair(yesterday, last5)
                 Response(Status.OK).body(gson.toJson(pair))
             } else {
                 Response(Status.BAD_REQUEST).body(result)
