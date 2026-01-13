@@ -1,6 +1,6 @@
-# sf-nada-dialog
+# sf-nada
 
-This is the sf-nada instance for team-dialog
+This is the sf-nada monorepo
 
 The sf-nada app is an integration between salesforce and the NADA data product solution (see https://docs.knada.io/)
 
@@ -12,9 +12,13 @@ The behaviour can be changed with config in [dev-gcp.yaml](.nais/dev-gcp.yaml) a
 The query and mapping for each data product is set up in the map definition files: [dev.json](src/main/resources/mapdef/dev.json)
 and [prod.json](src/main/resources/mapdef/prod.json)
 
-Each push to this repository will trigger a deployment to either dev-gcp or prod-gcp, defined in [main.yml](.github/workflows/main.yml)
+Each push to this repository will trigger a deployment for a namespace instance to either dev-gcp or prod-gcp, defined in [main.yml](.github/workflows/main.yml)
 
 You can examine the current state of the app and perform an initial bulk job to transfer all data at these ingresses (naisdevice required):
+```
+<Configured ingress>/internal/gui
+```
+For example team-dialog instance:
 
 Dev: https://sf-nada-dialog.intern.dev.nav.no/internal/gui
 
@@ -54,7 +58,7 @@ Note that you can map nested fields in Salesforce. I.e "LiveChatButton.MasterLab
 
 ### Gui-ingesses
 
-You can use the gui ingresses (https://sf-nada-dialog.dev.intern.nav.no/internal/gui, https://sf-nada-dialog.intern.nav.no/internal/gui) to examine the state of the app in dev and prod. Here you can expand each table
+You can use the gui ingresses (team-dialog examples: https://sf-nada-dialog.dev.intern.nav.no/internal/gui, https://sf-nada-dialog.intern.nav.no/internal/gui) to examine the state of the app in dev and prod. Here you can expand each table
 to verify how the current deployed map definition file are being parsed by the app versus metadata from BigQuery. You can also run the query for that table (returning a total count) to see if the fetch from salesforce
-goes through successfully, and perform a bulk transfer that in a first step prepares the data in Salesforce and in a second step transfers the data to BigQuery. 
+goes through successfully, and perform a bulk transfer that in a first step prepares the data in Salesforce and in a second step transfers the data to BigQuery.
 If POST_TO_BIGQUERY is false or a table you are looking at is listed in EXCLUDE_TABLES you only get to simulate the transfer of data to BigQuery - no data will be sent.
