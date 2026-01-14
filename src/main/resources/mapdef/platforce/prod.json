@@ -1,7 +1,7 @@
 {
   "license": {
     "active-feature-license": {
-      "query": "SELECT Id, Name FROM Network",
+      "query": "SELECT Id, Assignee.CRM_NAV_Ident__c, PermissionSetLicense.MasterLabel, Assignee.Profile.UserLicense.Name, Assignee.LastLoginDate FROM PermissionSetLicenseAssign WHERE Assignee.IsActive = true AND Assignee.Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus')",
       "schema": {
         "Id": {
           "name": "id",
@@ -10,7 +10,7 @@
       }
     },
     "active-feature-license-metric": {
-      "query": "SELECT Id, Name FROM Network",
+      "query": "SELECT Id, ActiveUserCount,AssignedUserCount,FeatureType,MetricsDate,TotalLicenseCount FROM ActiveFeatureLicenseMetric",
       "schema": {
         "Id": {
           "name": "id",
@@ -19,7 +19,7 @@
       }
     },
     "active-permset-license-metric": {
-      "query": "SELECT Id, Name FROM Network",
+      "query": "SELECT Id, ActiveUserCount,AssignedUserCount,DeveloperName, PermissionSetLicense.MasterLabel,TotalLicenses, MetricsDate FROM ActivePermSetLicenseMetric",
       "schema": {
         "Id": {
           "name": "id",
@@ -28,7 +28,7 @@
       }
     },
     "active-salesforce-user": {
-      "query": "SELECT Id, Name FROM Network",
+      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.UserLicense.Name FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus')",
       "schema": {
         "Id": {
           "name": "id",
@@ -37,7 +37,7 @@
       }
     },
     "community-user-login": {
-      "query": "SELECT Id, Name FROM Network",
+      "query": "SELECT Id, LoginTime, NetworkId, UserId FROM LoginHistory WHERE LoginTime = TODAY AND NetworkId != Null",
       "schema": {
         "Id": {
           "name": "id",
