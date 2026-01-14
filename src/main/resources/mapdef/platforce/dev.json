@@ -37,7 +37,7 @@
       }
     },
     "community-user-login": {
-      "query": "SELECT Id, LoginTime, NetworkId, UserId FROM LoginHistory WHERE LoginTime = TODAY AND NetworkId != Null -> Experience Logins",
+      "query": "SELECT Id, LoginTime, NetworkId, UserId FROM LoginHistory WHERE LoginTime = TODAY AND NetworkId != Null",
       "schema": {
         "Id": {
           "name": "id",
