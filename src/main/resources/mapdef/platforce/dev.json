@@ -1,0 +1,13 @@
+{
+  "license": {
+    "network": {
+      "query": "SELECT Id, Name FROM Network",
+      "schema": {
+        "Id": {
+          "name": "id",
+          "type": "STRING"
+        }
+      }
+    }
+  }
+}

@@ -10,5 +10,5 @@ jobs:
       id-token: write
       contents: write
     with:
-      DEPLOY_CLUSTER: prod-gcp
-      DEPLOY_NAMESPACE: team-dialog
+      DEPLOY_CLUSTER: dev-gcp
+      DEPLOY_NAMESPACE: platforce
