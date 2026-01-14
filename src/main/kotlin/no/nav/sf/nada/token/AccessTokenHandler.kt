@@ -4,8 +4,8 @@ import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import no.nav.sf.nada.config_SF_TOKENHOST
 import no.nav.sf.nada.env
-import no.nav.sf.nada.env_SF_TOKENHOST
 import no.nav.sf.nada.secret_KeystorePassword
 import no.nav.sf.nada.secret_PrivateKeyAlias
 import no.nav.sf.nada.secret_PrivateKeyPassword
@@ -43,7 +43,7 @@ object AccessTokenHandler {
 
     private val log = KotlinLogging.logger { }
 
-    private val SFTokenHost = env(env_SF_TOKENHOST)
+    private val SFTokenHost = env(config_SF_TOKENHOST)
     private val SFClientID = env(secret_SFClientID)
     private val SFUsername = env(secret_SFUsername)
     private val keystoreB64 = env(secret_keystoreJKSB64)

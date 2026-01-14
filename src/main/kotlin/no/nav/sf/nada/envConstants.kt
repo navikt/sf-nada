@@ -3,13 +3,12 @@
 package no.nav.sf.nada
 
 const val config_MAPDEF_FILE = "MAPDEF_FILE"
-const val config_GCP_TEAM_PROJECT_ID = "GCP_TEAM_PROJECT_ID"
 const val config_POST_TO_BIGQUERY = "POST_TO_BIGQUERY"
 const val config_EXCLUDE_TABLES = "EXCLUDE_TABLES"
+const val config_SF_TOKENHOST = "SF_TOKENHOST"
+const val config_SALESFORCE_VERSION = "SALESFORCE_VERSION"
 
-// Salesforce environment dependencies
-const val env_SF_TOKENHOST = "SF_TOKENHOST"
-const val env_SF_QUERY_BASE = "SF_QUERY_BASE"
+const val env_GCP_TEAM_PROJECT_ID = "GCP_TEAM_PROJECT_ID"
 
 // Salesforce required secrets
 const val secret_SFClientID = "SFClientID"

@@ -36,7 +36,7 @@ object HttpCalls {
                 .addNotRecordsFromTodayRestriction()
                 .urlDecoded()
         val request =
-            Request(Method.POST, "${AccessTokenHandler.instanceUrl}/services/data/v57.0/jobs/query")
+            Request(Method.POST, "${AccessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query")
                 .header("Authorization", "Bearer ${AccessTokenHandler.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
                 .body(
@@ -55,7 +55,7 @@ object HttpCalls {
 
     fun doSFBulkJobStatusQuery(jobId: String): Response {
         val request =
-            Request(Method.GET, "${AccessTokenHandler.instanceUrl}/services/data/v57.0/jobs/query/$jobId")
+            Request(Method.GET, "${AccessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}jobs/query/$jobId")
                 .header("Authorization", "Bearer ${AccessTokenHandler.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
         File("/tmp/bulkJobStatusQueryToHappen").writeText(request.toMessage())
@@ -71,7 +71,9 @@ object HttpCalls {
         val request =
             Request(
                 Method.GET,
-                "${AccessTokenHandler.instanceUrl}/services/data/v57.0/jobs/query/$jobId/results${locator?.let{"?locator=$locator"} ?: ""}",
+                "${AccessTokenHandler.instanceUrl}/services/data/${env(
+                    config_SALESFORCE_VERSION,
+                )}/jobs/query/$jobId/results${locator?.let{"?locator=$locator"} ?: ""}",
             ).header("Authorization", "Bearer ${AccessTokenHandler.accessToken}")
 
         val response = client.value(request)

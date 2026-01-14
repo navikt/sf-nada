@@ -36,12 +36,6 @@ spec:
       memory: 1Gi
   envFrom:
     - secret: sf-nada-preprod
-  gcp:
-    bigQueryDatasets:
-      - name: arbeidsgiver_aktiviteter_dev
-        permission: READWRITE
-      - name: arbeidsgiver_data_dev
-        permission: READWRITE
   accessPolicy:
     outbound:
       external:
@@ -52,7 +46,7 @@ spec:
       value: '/mapdef/replace-with-namespace/dev.json'
     - name: SF_TOKENHOST
       value: 'https://test.salesforce.com'
-    - name: SF_QUERY_BASE
-      value: '/services/data/v65.0/query?q='
+    - name: SALESFORCE_VERSION
+      value: 'v65.0'
     - name: DEPLOY_CLUSTER
       value: '{{ DEPLOY_CLUSTER }}'

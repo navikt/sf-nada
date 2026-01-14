@@ -25,9 +25,9 @@ private val resetRangeStop = LocalTime.parse("01:59:00")
 private val log = KotlinLogging.logger { }
 
 class Application {
-    val projectId = env(config_GCP_TEAM_PROJECT_ID)
+    val projectId = env(env_GCP_TEAM_PROJECT_ID)
 
-    val sfQueryBase = env(env_SF_QUERY_BASE)
+    val sfQueryBase = "/services/data/${env(config_SALESFORCE_VERSION)}/query?q="
 
     val mapDef = parseMapDef(env(config_MAPDEF_FILE))
 
