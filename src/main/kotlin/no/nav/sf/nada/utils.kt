@@ -89,6 +89,15 @@ fun String.addDateRestriction(localDate: LocalDate): String {
             .replace("<", "<".urlEncoded())
 }
 
+fun String.addHistoryLimit(days: Int?): String {
+    // If days == null, no restriction
+    if (days == null) return this
+
+    val connector = if (this.contains("WHERE", ignoreCase = true)) "+AND+" else "+WHERE+"
+
+    return this + connector + "LastModifiedDate=LAST_N_DAYS:$days"
+}
+
 fun String.addLimitRestriction(maxRecords: Int = 1000): String {
     val connector =
         if (this.contains("LIMIT", ignoreCase = true)) {

@@ -6,13 +6,20 @@ on:
       DEPLOY_CLUSTER:
         required: true
         type: string
+      DEPLOY_NAMESPACE:
+        required: true
+        type: string
 jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Checkout v5.0.1
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - name: Setup java v5.0.0
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v.5.0.0
         with:
           java-version: 21
           distribution: 'temurin'
@@ -21,7 +28,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew test
   build:
-    name: Build and push Docker container
+    name: Build and push Docker container for ${{ inputs.DEPLOY_NAMESPACE }}
     needs: test
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -31,13 +38,15 @@ jobs:
     outputs:
       image: ${{ steps.docker-push.outputs.image }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Checkout v5.0.1
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - name: Setup java v5.0.0
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v.5.0.0
         with:
           java-version: 21
           distribution: 'temurin'
-      - name: Setup Gradle to generate and submit dependency graphs
-        uses: gradle/actions/setup-gradle@v5
+      - name: Setup Gradle v5.0.0
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2
         with:
           cache-disabled: true
           dependency-graph: generate-and-submit
@@ -49,18 +58,24 @@ jobs:
         uses: nais/docker-build-push@v0
         id: docker-push
         with:
-          team: team-dialog
+          team: ${{ inputs.DEPLOY_NAMESPACE }}
   deploy:
-    name: Deploy sf-nada-crm to ${{ inputs.DEPLOY_CLUSTER }}
+    name: Deploy sf-nada to ${{ inputs.DEPLOY_CLUSTER }} ${{ inputs.DEPLOY_NAMESPACE }}
     needs: build
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: nais/deploy/actions/deploy@v2
+      - name: Checkout v5.0.1
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - name: Merge YAML
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew mergeYamlTask
+      - name: Nais Deploy v2
+        uses: nais/deploy/actions/deploy@21af204a4d63d1c10d149916d96669d5c2fa6f76 # v2
         env:
           CLUSTER: ${{ inputs.DEPLOY_CLUSTER }}
-          RESOURCE: .nais/${{ inputs.DEPLOY_CLUSTER }}.yaml
+          RESOURCE: .nais/${{ inputs.DEPLOY_NAMESPACE }}/target/${{ inputs.DEPLOY_CLUSTER }}.yaml
           VAR: image=${{ needs.build.outputs.image }},DEPLOY_CLUSTER=${{ inputs.DEPLOY_CLUSTER}}

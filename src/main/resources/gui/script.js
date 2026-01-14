@@ -179,12 +179,12 @@ document.addEventListener("DOMContentLoaded", function () {
                                 if (status === 200) {
                                     const first = body.first === 1000 ? "1000+" : body.first;
                                     const second = body.second === 1000 ? "1000+" : body.second;
-                                    resultDiv.textContent = `Found ${first} records yesterday, ${second} records in total.`;
+                                    resultDiv.textContent = `Found ${first} records yesterday, ${second} records last 5 days.`;
                                     resultDiv.classList.add(
                                         body.first === 0 && body.second === 0 ? "result-blue" : "result-green"
                                     );
                                 } else {
-                                    resultDiv.innerHTML = `Fail: ${body}`;
+                                    resultDiv.innerHTML = `${body}`;
                                     resultDiv.classList.add("result-red");
                                 }
 
@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             .catch(err => {
                                 spinner.style.display = "none";
                                 const resultDiv = document.createElement("div");
-                                resultDiv.textContent = `Fail: ${err.message}`;
+                                resultDiv.textContent = `${err.message}`;
                                 resultDiv.classList.add("query-result", "result-red");
                                 tableColumns.insertBefore(resultDiv, tableColumnsTable);
                             });

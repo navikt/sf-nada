@@ -5,8 +5,8 @@ import no.nav.sf.nada.parseMapDef
 import no.nav.sf.nada.toRowMap
 import org.junit.jupiter.api.Test
 
-const val MAPDEF_FILE_DEV = "/mapdef/dev.json"
-const val MAPDEF_FILE_PROD = "/mapdef/prod.json"
+const val MAPDEF_FILE_DEV = "/mapdef/team-dialog/dev.json"
+const val MAPDEF_FILE_PROD = "/mapdef/team-dialog/prod.json"
 
 const val RECORD_KUNNSKAP_FILE = "/record_kunnskapsartikler.json"
 const val RECORD_CHAT_FILE = "/record_chat_mock.json"
