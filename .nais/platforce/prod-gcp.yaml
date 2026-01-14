@@ -1,0 +1,13 @@
+spec:
+  ingresses:
+    - "https://sf-nada-platforce.intern.nav.no"
+  gcp:
+    bigQueryDatasets:
+      - name: license
+        permission: READWRITE
+  env:
+    - name: POST_TO_BIGQUERY
+      value: 'false'
+    - name: EXCLUDE_TABLES
+      value: ''
+
