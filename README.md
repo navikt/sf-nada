@@ -9,8 +9,8 @@ last modified yesterday and post them to corresponding bigquery tables of the NA
 
 The behaviour can be changed with config in [dev-gcp.yaml](.nais/team-dialog/dev-gcp.yaml) and [prod-gcp.yaml](.nais/team-dialog/prod-gcp.yaml)
 
-The query and mapping for each data product is set up in the map definition files: [dev.json](src/main/resources/mapdef/team-dialog/dev.json)
-and [prod.json](src/main/resources/mapdef/team-dialog/prod.json)
+The query and mapping for each data product is set up in the map definition files: [dev.json](src/main/resources/mapdef/dev.json)
+and [prod.json](src/main/resources/mapdef/prod.json)
 
 Each push to this repository will trigger a deployment for a namespace instance to either dev-gcp or prod-gcp, defined in [main.yml](.github/workflows/main.yml)
 
