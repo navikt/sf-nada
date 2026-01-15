@@ -165,5 +165,12 @@ fun parseCSVToJsonArrays(csvData: String): List<JsonArray> {
     csvParser.close()
     reader.close()
 
+    File("/tmp/jsonArrayTypes").writeText(
+        listOfJsonArrays
+            .map { arr ->
+                arr.map { it?.javaClass?.simpleName }
+            }.joinToString(","),
+    )
+
     return listOfJsonArrays
 }

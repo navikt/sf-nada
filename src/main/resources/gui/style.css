@@ -152,6 +152,9 @@ body {
     white-space: pre-wrap;     /* Preserve whitespace and allow wrapping */
     word-wrap: break-word;     /* Break long words for better display */
     color: #333;               /* Darker text for contrast */
+
+.last-modified-field {
+    font-size: 12px;
 }
 
 .button-row {

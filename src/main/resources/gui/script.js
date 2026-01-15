@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         lastModifiedFieldDiv = document.createElement("div");
                         lastModifiedFieldDiv.classList.add("salesforce-query");
                         lastModifiedFieldDiv.classList.add("last-modified-field");
-                        lastModifiedFieldDiv.textContent = "Dates spliced with " + table.useForLastModifiedDate;
+                        lastModifiedFieldDiv.textContent = table.useForLastModifiedDate + " used instead of LastModifiedDate";
                         tableDetails.appendChild(lastModifiedFieldDiv);
                     }
 
