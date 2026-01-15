@@ -155,7 +155,13 @@ body {
 }
 
 .last-modified-field {
+    padding: 6px 10px;
+    border: 1px solid #c7d6f9;
+    font-family: monospace;
     font-size: 12px;
+    background-color: #ffffff;
+    border-radius: 20px;
+    display: inline-flex;
 }
 
 .button-row {
