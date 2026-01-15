@@ -199,7 +199,7 @@ object Gui {
                             ?: "No query configured"
 
                     val useForLastModifiedDate =
-                        mapDef[datasetName]?.get(tableName)?.useForLastModifiedDate?: "No useForLastModifiedDate configured"
+                        mapDef[datasetName]?.get(tableName)?.useForLastModifiedDate ?: "No useForLastModifiedDate configured"
 
                     val selectFields = extractFields(tableQuery)
 
