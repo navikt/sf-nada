@@ -64,6 +64,12 @@ object BulkOperation {
             }
         }
         val bulkJobStatusResponse = doSFBulkJobStatusQuery(currentOperationInfo.jobId)
+
+        if (!bulkJobStatusResponse.status.successful) {
+            log.error { "Bad response from bulk job status query: ${bulkJobStatusResponse.bodyString()}" }
+            throw IllegalStateException("Bad response from bulk job status query: ${bulkJobStatusResponse.bodyString()}")
+        }
+
         try {
             val responseObj = JsonParser.parseString(bulkJobStatusResponse.bodyString()) as JsonObject
             currentOperationInfo.jobId = responseObj["id"].asString
