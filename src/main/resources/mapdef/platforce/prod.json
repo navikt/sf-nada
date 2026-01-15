@@ -16,7 +16,8 @@
           "name": "id",
           "type": "STRING"
         }
-      }
+      },
+      "useForLastModifiedDate": "MetricsDate"
     },
     "active-permset-license-metric": {
       "query": "SELECT Id, ActiveUserCount,AssignedUserCount,DeveloperName, PermissionSetLicense.MasterLabel,TotalLicenses, MetricsDate FROM ActivePermSetLicenseMetric",
@@ -25,7 +26,8 @@
           "name": "id",
           "type": "STRING"
         }
-      }
+      },
+      "useForLastModifiedDate": "MetricsDate"
     },
     "active-salesforce-user": {
       "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.UserLicense.Name FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus')",
