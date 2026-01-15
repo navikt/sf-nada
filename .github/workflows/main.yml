@@ -11,4 +11,4 @@ jobs:
       contents: write
     with:
       DEPLOY_CLUSTER: prod-gcp
-      DEPLOY_NAMESPACE: platforce
+      DEPLOY_NAMESPACE: team-dialog
