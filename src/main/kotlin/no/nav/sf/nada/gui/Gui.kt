@@ -154,6 +154,7 @@ object Gui {
         val numRows: Long,
         val columns: List<ColumnMetadata>,
         val salesforceQuery: String? = null,
+        val useForLastModifiedDate: String? = "LastModifiedDate",
         val active: Boolean = true,
         val operationInfo: OperationInfo,
     )
@@ -196,6 +197,9 @@ object Gui {
                     val tableQuery =
                         mapDef[datasetName]?.get(tableName)?.query?.let { it.replace("+", " ") }
                             ?: "No query configured"
+
+                    val useForLastModifiedDate =
+                        mapDef[datasetName]?.get(tableName)?.useForLastModifiedDate?: "No useForLastModifiedDate configured"
 
                     val selectFields = extractFields(tableQuery)
 
@@ -289,6 +293,7 @@ object Gui {
                             numRows = numRows,
                             columns = columns,
                             salesforceQuery = tableQuery,
+                            useForLastModifiedDate = useForLastModifiedDate,
                             active = application.postToBigQuery && !(application.excludeTables.any { it == tableName }),
                             operationInfo = BulkOperation.operationInfo[datasetName]!![tableName]!!,
                         )

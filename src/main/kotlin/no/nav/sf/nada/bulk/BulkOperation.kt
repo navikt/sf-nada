@@ -167,6 +167,7 @@ object BulkOperation {
                     log.info { reportRow }
                     currentOperationInfo.transferReport += "\n$reportRow"
                 } catch (e: Exception) {
+                    File("/tmp/exceptionAtTransferJob").writeText(e.toString() + "\n" + e.stackTraceToString())
                     log.error { "Exception at remapAndSendRecords in transfer job - ${e.message}" }
                     currentOperationInfo.transferReport += "\nFail in batch operation - ${e.message}"
                     currentOperationInfo.transferDone = true

@@ -133,6 +133,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     queryDiv.textContent = table.salesforceQuery;
                     tableDetails.appendChild(queryDiv);
 
+                    if (table.useForLastModifiedDate !== "LastModifiedDate") {
+                        lastModifiedFieldDiv = document.createElement("div");
+                        lastModifiedFieldDiv.classList.add("salesforce-query");
+                        lastModifiedFieldDiv.classList.add("last-modified-field");
+                        lastModifiedFieldDiv.textContent = "Dates spliced with " + table.useForLastModifiedDate;
+                        tableDetails.appendChild(lastModifiedFieldDiv);
+                    }
+
                     // Add buttons row
                     const buttonRow = document.createElement("div");
                     buttonRow.classList.add("button-row");
