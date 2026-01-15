@@ -144,14 +144,15 @@ body {
 }
 .salesforce-query {
     background-color: #f9f9f9; /* Light grey background */
-    border: 1px solid #ccc;    /* Light grey border */
-    border-radius: 10px;       /* Rounded corners */
-    padding: 10px;             /* Internal spacing */
-    margin-bottom: 15px;       /* Space below the query */
-    font-family: monospace;    /* Monospaced font for query readability */
-    white-space: pre-wrap;     /* Preserve whitespace and allow wrapping */
-    word-wrap: break-word;     /* Break long words for better display */
-    color: #333;               /* Darker text for contrast */
+    border: 1px solid #ccc; /* Light grey border */
+    border-radius: 10px; /* Rounded corners */
+    padding: 10px; /* Internal spacing */
+    margin-bottom: 15px; /* Space below the query */
+    font-family: monospace; /* Monospaced font for query readability */
+    white-space: pre-wrap; /* Preserve whitespace and allow wrapping */
+    word-wrap: break-word; /* Break long words for better display */
+    color: #333; /* Darker text for contrast */
+}
 
 .last-modified-field {
     font-size: 12px;
