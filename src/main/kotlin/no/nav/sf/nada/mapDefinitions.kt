@@ -13,6 +13,7 @@ data class FieldDef(
 data class TableDef(
     val query: String,
     val fieldDefMap: MutableMap<String, FieldDef>,
+    val useForLastModifiedDate: String = "LastModifiedDate",
 )
 
 fun parseMapDef(filePath: String): Map<String, Map<String, TableDef>> =
@@ -28,7 +29,16 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
             val objT = tableEntry.value.asJsonObject
             val query = objT["query"]!!.asString.replace(" ", "+")
             val objS = objT["schema"]!!.asJsonObject
-            result[dataSetEntry.key]!![tableEntry.key] = TableDef(query, mutableMapOf())
+            val useForLastModifiedDate =
+                objT.get("useForLastModifiedDate")?.asString ?: "LastModifiedDate"
+
+            result[dataSetEntry.key]!![tableEntry.key] =
+                TableDef(
+                    query = query,
+                    fieldDefMap = mutableMapOf(),
+                    useForLastModifiedDate = useForLastModifiedDate,
+                )
+
             objS.entrySet().forEach { fieldEntry ->
                 val fieldDef = gson.fromJson(fieldEntry.value, FieldDef::class.java)
                 result[dataSetEntry.key]!![tableEntry.key]!!.fieldDefMap[fieldEntry.key] = fieldDef

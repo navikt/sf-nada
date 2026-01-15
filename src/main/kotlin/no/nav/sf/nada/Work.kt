@@ -35,9 +35,11 @@ fun fetchAndSend(
     } else if (application.mapDef[dataset]?.containsKey(table) == false) {
         throw RuntimeException("mapDef.json is missing a definition for table $table in dataset $dataset")
     }
+
+    val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
     val query =
         application.mapDef[dataset]!![table]!!.query.let { q ->
-            if (localDate == null) q else q.addDateRestriction(localDate)
+            if (localDate == null) q else q.addDateRestriction(localDate, useForLastModifiedDate)
         }
     log.info { "Will use query: $query" }
 

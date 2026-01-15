@@ -44,9 +44,10 @@ object Gui {
         val dataset = req.query("dataset")
         val table = req.query("table")
         log.info { "Will perform testcall $dataset $table" }
+        val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
         val query = application.mapDef[dataset]!![table]!!.query
 
-        val queryYesterday = query.addYesterdayRestriction()
+        val queryYesterday = query.addYesterdayRestriction(useForLastModifiedDate)
 
         var success = true
         var yesterday = 0
@@ -78,9 +79,13 @@ object Gui {
 //        if (yesterday > 100) {
 //            total = 1000 // Will likely be hitting max - not worth big operation query (TODO could improve fe)
 //        } else {
-        val responseTotal = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(5)}")
+        val responseTotal =
+            doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(5, useForLastModifiedDate)}")
         File("/tmp/responseLast5Call").writeText(
-            "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(5)}\nRESPONSE:\n" +
+            "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(
+                5,
+                useForLastModifiedDate,
+            )}\nRESPONSE:\n" +
                 responseTotal.toMessage(),
         )
         if (responseTotal.status.code == 400) {

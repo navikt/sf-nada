@@ -30,10 +30,11 @@ object HttpCalls {
         dataset: String,
         table: String,
     ): Response {
+        val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
         val query =
             application.mapDef[dataset]!![table]!!
                 .query
-                .addNotRecordsFromTodayRestriction()
+                .addNotRecordsFromTodayRestriction(useForLastModifiedDate)
                 .urlDecoded()
         val request =
             Request(Method.POST, "${AccessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query")
