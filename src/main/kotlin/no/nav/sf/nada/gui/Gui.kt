@@ -45,9 +45,10 @@ object Gui {
         val table = req.query("table")
         log.info { "Will perform testcall $dataset $table" }
         val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
+        val withoutTimePart = application.mapDef[dataset]!![table]!!.withoutTimePart
         val query = application.mapDef[dataset]!![table]!!.query
 
-        val queryYesterday = query.addYesterdayRestriction(useForLastModifiedDate)
+        val queryYesterday = query.addYesterdayRestriction(useForLastModifiedDate, withoutTimePart)
 
         var success = true
         var yesterday = 0
@@ -154,7 +155,8 @@ object Gui {
         val numRows: Long,
         val columns: List<ColumnMetadata>,
         val salesforceQuery: String? = null,
-        val useForLastModifiedDate: String? = "LastModifiedDate",
+        val useForLastModifiedDate: String = "LastModifiedDate",
+        val withoutTimePart: Boolean = false,
         val active: Boolean = true,
         val operationInfo: OperationInfo,
     )
@@ -195,11 +197,14 @@ object Gui {
                     val tableName = table.tableId.table
 
                     val tableQuery =
-                        mapDef[datasetName]?.get(tableName)?.query?.let { it.replace("+", " ") }
+                        mapDef[datasetName]?.get(tableName)?.query?.replace("+", " ")
                             ?: "No query configured"
 
                     val useForLastModifiedDate =
                         mapDef[datasetName]?.get(tableName)?.useForLastModifiedDate ?: "No useForLastModifiedDate configured"
+
+                    val withoutTimePart =
+                        mapDef[datasetName]?.get(tableName)?.withoutTimePart ?: false
 
                     val selectFields = extractFields(tableQuery)
 
@@ -294,6 +299,7 @@ object Gui {
                             columns = columns,
                             salesforceQuery = tableQuery,
                             useForLastModifiedDate = useForLastModifiedDate,
+                            withoutTimePart = withoutTimePart,
                             active = application.postToBigQuery && !(application.excludeTables.any { it == tableName }),
                             operationInfo = BulkOperation.operationInfo[datasetName]!![tableName]!!,
                         )

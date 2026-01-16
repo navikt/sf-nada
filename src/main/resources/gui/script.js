@@ -133,11 +133,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     queryDiv.textContent = table.salesforceQuery;
                     tableDetails.appendChild(queryDiv);
 
-                    if (table.useForLastModifiedDate !== "LastModifiedDate") {
+                    if (table.useForLastModifiedDate !== "LastModifiedDate" || table.withoutTimePart == true) {
                         lastModifiedFieldDiv = document.createElement("div");
                         lastModifiedFieldDiv.classList.add("salesforce-query");
                         lastModifiedFieldDiv.classList.add("last-modified-field");
                         lastModifiedFieldDiv.textContent = table.useForLastModifiedDate + " used instead of LastModifiedDate";
+                        if (table.withoutTimePart === true) {
+                            lastModifiedFieldDiv.textContent += " (without time part)";
+                        }
                         tableDetails.appendChild(lastModifiedFieldDiv);
                     }
 

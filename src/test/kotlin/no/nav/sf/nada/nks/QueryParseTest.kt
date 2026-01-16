@@ -38,10 +38,11 @@ class QueryParseTest {
     @Test
     fun `Construe salesforce query with date restriction`() {
         val useForLastModifiedDate = exampleMapDef["dataset"]!!["table"]!!.useForLastModifiedDate
+        val withoutTimePart = exampleMapDef["dataset"]!!["table"]!!.withoutTimePart
         val query = exampleMapDef["dataset"]!!["table"]!!.query
         Assertions.assertEquals("SELECT+Id+FROM+Event", query)
 
-        val queryWithDateRestriction = query.addDateRestriction(LocalDate.parse("2000-01-01"), useForLastModifiedDate)
+        val queryWithDateRestriction = query.addDateRestriction(LocalDate.parse("2000-01-01"), useForLastModifiedDate, withoutTimePart)
         Assertions.assertEquals(
             "SELECT+Id+FROM+Event+WHERE+LastModifiedDate%3E=2000-01-01T00%3A00%3A00Z+AND+LastModifiedDate%3C=2000-01-02T00%3A00%3A00Z",
             queryWithDateRestriction,
@@ -50,7 +51,7 @@ class QueryParseTest {
         val query2 = exampleMapDef["dataset"]!!["table2"]!!.query
         Assertions.assertEquals("SELECT+Id+FROM+Event+WHERE+Source='A'", query2)
 
-        val queryWithDateRestriction2 = query2.addDateRestriction(LocalDate.parse("2000-01-01"), useForLastModifiedDate)
+        val queryWithDateRestriction2 = query2.addDateRestriction(LocalDate.parse("2000-01-01"), useForLastModifiedDate, withoutTimePart)
 
         Assertions.assertEquals(
             "SELECT+Id+FROM+Event+WHERE+Source='A'+AND+LastModifiedDate%3E=2000-01-01T00%3A00%3A00Z+AND+LastModifiedDate%3C=2000-01-02T00%3A00%3A00Z",

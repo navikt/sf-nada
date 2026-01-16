@@ -14,6 +14,7 @@ data class TableDef(
     val query: String,
     val fieldDefMap: MutableMap<String, FieldDef>,
     val useForLastModifiedDate: String = "LastModifiedDate",
+    val withoutTimePart: Boolean = false,
 )
 
 fun parseMapDef(filePath: String): Map<String, Map<String, TableDef>> =
@@ -31,12 +32,14 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
             val objS = objT["schema"]!!.asJsonObject
             val useForLastModifiedDate =
                 objT.get("useForLastModifiedDate")?.asString ?: "LastModifiedDate"
+            val withoutTimePart = objT.get("withoutTimePart")?.asBoolean ?: false
 
             result[dataSetEntry.key]!![tableEntry.key] =
                 TableDef(
                     query = query,
                     fieldDefMap = mutableMapOf(),
                     useForLastModifiedDate = useForLastModifiedDate,
+                    withoutTimePart = withoutTimePart,
                 )
 
             objS.entrySet().forEach { fieldEntry ->

@@ -82,13 +82,16 @@ object ShutdownHook {
 fun String.addDateRestriction(
     localDate: LocalDate,
     useForLastModifiedDate: String,
+    withoutTimePart: Boolean,
 ): String {
     val connector = if (this.contains("WHERE")) "+AND" else "+WHERE"
     return this +
         "$connector+$useForLastModifiedDate>=TODAY+AND+$useForLastModifiedDate<=TOMORROW"
-            .replace("TODAY", "${localDate.format(DateTimeFormatter.ISO_DATE)}T00:00:00Z".urlEncoded())
-            .replace("TOMORROW", "${localDate.plusDays(1).format(DateTimeFormatter.ISO_DATE)}T00:00:00Z".urlEncoded())
-            .replace(">", ">".urlEncoded())
+            .replace("TODAY", "${localDate.format(DateTimeFormatter.ISO_DATE)}${if (withoutTimePart) "" else "T00:00:00Z"}".urlEncoded())
+            .replace(
+                "TOMORROW",
+                "${localDate.plusDays(1).format(DateTimeFormatter.ISO_DATE)}${if (withoutTimePart) "" else "T00:00:00Z"}".urlEncoded(),
+            ).replace(">", ">".urlEncoded())
             .replace("<", "<".urlEncoded())
 }
 
@@ -114,16 +117,23 @@ fun String.addLimitRestriction(maxRecords: Int = 1000): String {
     return "$this$connector+$maxRecords"
 }
 
-fun String.addNotRecordsFromTodayRestriction(useForLastModifiedDate: String): String {
+fun String.addNotRecordsFromTodayRestriction(
+    useForLastModifiedDate: String,
+    withoutTimePart: Boolean,
+): String {
     val connector = if (this.contains("WHERE")) "+AND" else "+WHERE"
     return this +
         "$connector+$useForLastModifiedDate<TODAY"
-            .replace("TODAY", "${LocalDate.now().format(DateTimeFormatter.ISO_DATE)}T00:00:00Z".urlEncoded())
-            .replace("<", "<".urlEncoded())
+            .replace(
+                "TODAY",
+                "${LocalDate.now().format(DateTimeFormatter.ISO_DATE)}${if (withoutTimePart) "" else "T00:00:00Z"}".urlEncoded(),
+            ).replace("<", "<".urlEncoded())
 }
 
-fun String.addYesterdayRestriction(useForLastModifiedDate: String): String =
-    this.addDateRestriction(LocalDate.now().minusDays(1), useForLastModifiedDate)
+fun String.addYesterdayRestriction(
+    useForLastModifiedDate: String,
+    withoutTimePart: Boolean,
+): String = this.addDateRestriction(LocalDate.now().minusDays(1), useForLastModifiedDate, withoutTimePart)
 
 fun parseCSVToJsonArrays(csvData: String): List<JsonArray> {
     File("/tmp/csvData").writeText(csvData)

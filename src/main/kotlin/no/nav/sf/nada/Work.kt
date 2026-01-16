@@ -37,9 +37,10 @@ fun fetchAndSend(
     }
 
     val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
+    val withoutTimePart = application.mapDef[dataset]!![table]!!.withoutTimePart
     val query =
         application.mapDef[dataset]!![table]!!.query.let { q ->
-            if (localDate == null) q else q.addDateRestriction(localDate, useForLastModifiedDate)
+            if (localDate == null) q else q.addDateRestriction(localDate, useForLastModifiedDate, withoutTimePart)
         }
     log.info { "Will use query: $query" }
 
@@ -114,9 +115,8 @@ fun remapAndSendRecords(
     records.last().let { File("/tmp/latestRecord_${tableId.table}").writeText("$it") }
     insertAllRequest.rows.last().let { File("/tmp/latestRow_${tableId.table}").writeText("$it") }
     insertAllRequest.rows
-        .map { "$it" }
-        .joinToString(",\n")
-        .let { File("/tmp/allRows_${tableId.table}").writeText("$it") }
+        .joinToString(",\n") { "$it" }
+        .let { File("/tmp/allRows_${tableId.table}").writeText(it) }
     if (application.postToBigQuery && !(application.excludeTables.any { it == tableId.table })) {
         val response = application.bigQueryService.insertAll(insertAllRequest)
         if (response.hasErrors()) {
