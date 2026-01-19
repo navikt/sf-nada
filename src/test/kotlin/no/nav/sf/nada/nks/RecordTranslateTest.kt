@@ -1,8 +1,12 @@
 
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import no.nav.sf.nada.FieldDef
+import no.nav.sf.nada.SupportedType
 import no.nav.sf.nada.parseMapDef
 import no.nav.sf.nada.toRowMap
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 const val MAPDEF_FILE_DEV = "/mapdef/team-dialog/dev.json"
@@ -23,8 +27,46 @@ public class RecordTranslateTest {
         val recordObj = JsonParser.parseString(RecordTranslateTest::class.java.getResource(RECORD_MOETER_MISSING).readText()) as JsonObject
         val fieldDefMap = mapDefProd["arbeidsgiver_aktivitet"]!!["arbeidsgiver_moeter"]!!.fieldDefMap
 
-        recordObj.toRowMap(fieldDefMap)
+        // println(recordObj.toRowMap(fieldDefMap))
         // println("Expected field $missingFieldNames missing in record, total sum ($missingFieldWarning)")
+    }
+
+    @Test
+    fun `toRowMap maps flat dotted keys correctly`() {
+        // --- Given: field definitions ---
+        val fieldDefMap =
+            mutableMapOf(
+                "Id" to FieldDef("id", SupportedType.STRING),
+                "Assignee.CRM_NAV_Ident__c" to FieldDef("navIdent", SupportedType.STRING),
+                "PermissionSetLicense.MasterLabel" to FieldDef("licenseName", SupportedType.STRING),
+                "Assignee.Profile.UserLicense.Name" to FieldDef("userLicenseType", SupportedType.STRING),
+                "Assignee.LastLoginDate" to FieldDef("lastLoginAt", SupportedType.DATETIME),
+            )
+
+        // --- And: input JSON object ---
+        val json =
+            """
+            {
+              "Id": "2LAQC00000068ZG4AY",
+              "Assignee.CRM_NAV_Ident__c": "M111111",
+              "Assignee.Profile.UserLicense.Name": "Salesforce Platform",
+              "PermissionSetLicense.MasterLabel": "Einstein Search"
+            }
+            """.trimIndent()
+
+        val jsonObject = Gson().fromJson(json, JsonObject::class.java)
+
+        // --- When ---
+        val result = jsonObject.toRowMap(fieldDefMap)
+
+        // --- Then ---
+        assertEquals("2LAQC00000068ZG4AY", result["id"])
+        assertEquals("M111111", result["navIdent"])
+        assertEquals("Einstein Search", result["licenseName"])
+        assertEquals("Salesforce Platform", result["userLicenseType"])
+
+        // Missing field should map to null
+        assertEquals(null, result["lastLoginAt"])
     }
 
     /*  // TODO Once we have a stable model to test against, we can do a variant of the testing below to ensure mapdef file is sound etc.

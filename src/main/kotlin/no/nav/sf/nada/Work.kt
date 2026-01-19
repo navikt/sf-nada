@@ -89,6 +89,24 @@ fun Response.parsedRecordsCount(): Int {
 }
 
 fun JsonObject.findBottomElement(defKey: String): JsonElement {
+    // 1) Try direct lookup first (flat JSON)
+    this.get(defKey)?.let { return it }
+
+    // 2) Fallback to nested lookup
+    val subKeys = defKey.split(".")
+    var current: JsonElement = this
+
+    for (key in subKeys) {
+        if (current !is JsonObject || !current.has(key)) {
+            return JsonNull.INSTANCE
+        }
+        current = current.get(key)
+    }
+    return current
+}
+
+/*
+fun JsonObject.findBottomElement(defKey: String): JsonElement {
     val subKeys = defKey.split(".")
     val depth = subKeys.size
     if (!this.has(subKeys[0])) {
@@ -101,6 +119,8 @@ fun JsonObject.findBottomElement(defKey: String): JsonElement {
     }
     return element
 }
+
+ */
 
 fun remapAndSendRecords(
     records: JsonArray,
