@@ -7,7 +7,7 @@ spec:
         permission: READWRITE
   env:
     - name: POST_TO_BIGQUERY
-      value: 'false'
+      value: 'true'
     - name: EXCLUDE_TABLES
       value: ''
 
