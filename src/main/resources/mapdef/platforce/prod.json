@@ -25,7 +25,6 @@
         }
       }
     },
-
     "active-feature-license-metric": {
       "query": "SELECT Id, ActiveUserCount,AssignedUserCount,FeatureType,MetricsDate,TotalLicenseCount FROM ActiveFeatureLicenseMetric",
       "schema": {
@@ -57,7 +56,6 @@
       "useForLastModifiedDate": "MetricsDate",
       "withoutTimePart": "true"
     },
-
     "active-permset-license-metric": {
       "query": "SELECT Id, ActiveUserCount,AssignedUserCount,DeveloperName, PermissionSetLicense.MasterLabel,TotalLicenses, MetricsDate FROM ActivePermSetLicenseMetric",
       "schema": {
@@ -93,7 +91,6 @@
       "useForLastModifiedDate": "MetricsDate",
       "withoutTimePart": "true"
     },
-
     "active-salesforce-user": {
       "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.UserLicense.Name FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus')",
       "schema": {
@@ -115,7 +112,6 @@
         }
       }
     },
-
     "community-user-login": {
       "query": "SELECT Id, LoginTime, NetworkId, UserId FROM LoginHistory WHERE NetworkId != Null",
       "schema": {
@@ -137,6 +133,19 @@
         }
       },
       "useForLastModifiedDate": "LoginTime"
+    },
+    "network": {
+      "query": "SELECT Id, Name FROM Network",
+      "schema": {
+        "Id": {
+          "name": "id",
+          "type": "STRING"
+        },
+        "Name": {
+          "name": "name",
+          "type": "STRING"
+        }
+      }
     }
   }
 }
