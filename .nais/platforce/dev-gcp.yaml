@@ -9,5 +9,5 @@ spec:
     - name: POST_TO_BIGQUERY
       value: 'false'
     - name: EXCLUDE_TABLES
-      value: ''
+      value: 'network'
 
