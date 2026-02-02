@@ -201,7 +201,7 @@ object Gui {
                             ?: "No query configured"
 
                     val useForLastModifiedDate =
-                        mapDef[datasetName]?.get(tableName)?.useForLastModifiedDate ?: "No useForLastModifiedDate configured"
+                        mapDef[datasetName]?.get(tableName)?.useForLastModifiedDate ?: listOf("Missing")
 
                     val withoutTimePart =
                         mapDef[datasetName]?.get(tableName)?.withoutTimePart ?: false
@@ -298,7 +298,7 @@ object Gui {
                             numRows = numRows,
                             columns = columns,
                             salesforceQuery = tableQuery,
-                            useForLastModifiedDate = useForLastModifiedDate,
+                            useForLastModifiedDate = useForLastModifiedDate.joinToString(","),
                             withoutTimePart = withoutTimePart,
                             active = application.postToBigQuery && !(application.excludeTables.any { it == tableName }),
                             operationInfo = BulkOperation.operationInfo[datasetName]!![tableName]!!,

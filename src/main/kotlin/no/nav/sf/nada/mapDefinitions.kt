@@ -13,7 +13,7 @@ data class FieldDef(
 data class TableDef(
     val query: String,
     val fieldDefMap: MutableMap<String, FieldDef>,
-    val useForLastModifiedDate: String = "LastModifiedDate",
+    val useForLastModifiedDate: List<String> = listOf("LastModifiedDate"),
     val withoutTimePart: Boolean = false,
 )
 
@@ -31,7 +31,7 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
             val query = objT["query"]!!.asString.replace(" ", "+")
             val objS = objT["schema"]!!.asJsonObject
             val useForLastModifiedDate =
-                objT.get("useForLastModifiedDate")?.asString ?: "LastModifiedDate"
+                objT.get("useForLastModifiedDate")?.asString?.split(",") ?: listOf("LastModifiedDate")
             val withoutTimePart = objT.get("withoutTimePart")?.asBoolean ?: false
 
             result[dataSetEntry.key]!![tableEntry.key] =

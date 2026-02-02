@@ -44,7 +44,7 @@ class QueryParseTest {
 
         val queryWithDateRestriction = query.addDateRestriction(LocalDate.parse("2000-01-01"), useForLastModifiedDate, withoutTimePart)
         Assertions.assertEquals(
-            "SELECT+Id+FROM+Event+WHERE+LastModifiedDate%3E=2000-01-01T00%3A00%3A00Z+AND+LastModifiedDate%3C=2000-01-02T00%3A00%3A00Z",
+            "SELECT+Id+FROM+Event+WHERE+%28LastModifiedDate+%3E%3D+2000-01-01T00%3A00%3A00Z+AND+LastModifiedDate+%3C+2000-01-02T00%3A00%3A00Z%29",
             queryWithDateRestriction,
         )
 
@@ -54,7 +54,7 @@ class QueryParseTest {
         val queryWithDateRestriction2 = query2.addDateRestriction(LocalDate.parse("2000-01-01"), useForLastModifiedDate, withoutTimePart)
 
         Assertions.assertEquals(
-            "SELECT+Id+FROM+Event+WHERE+Source='A'+AND+LastModifiedDate%3E=2000-01-01T00%3A00%3A00Z+AND+LastModifiedDate%3C=2000-01-02T00%3A00%3A00Z",
+            "SELECT+Id+FROM+Event+WHERE+Source='A'+AND+%28LastModifiedDate+%3E%3D+2000-01-01T00%3A00%3A00Z+AND+LastModifiedDate+%3C+2000-01-02T00%3A00%3A00Z%29",
             queryWithDateRestriction2,
         )
     }

@@ -92,7 +92,7 @@
       "withoutTimePart": "true"
     },
     "active-salesforce-user": {
-      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.UserLicense.Name FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus')",
+      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus')",
       "schema": {
         "Id": {
           "name": "id",
@@ -106,11 +106,16 @@
           "name": "lastLoginAt",
           "type": "DATETIME"
         },
+        "Profile.Name": {
+          "name": "profileName",
+          "type": "STRING"
+        },
         "Profile.UserLicense.Name": {
           "name": "userLicenseType",
           "type": "STRING"
         }
-      }
+      },
+      "useForLastModifiedDate": "LastModifiedDate,LastLoginDate"
     },
     "community-user-login": {
       "query": "SELECT Id, LoginTime, NetworkId, UserId FROM LoginHistory WHERE NetworkId != Null",
