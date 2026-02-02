@@ -5,5 +5,5 @@ enum class SupportedType {
     INTEGER,
     DATETIME,
     DATE,
-    BOOL,
+    BOOLEAN,
 }
