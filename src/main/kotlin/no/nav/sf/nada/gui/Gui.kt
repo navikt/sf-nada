@@ -10,7 +10,7 @@ import mu.KotlinLogging
 import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.Metrics
 import no.nav.sf.nada.TableDef
-import no.nav.sf.nada.addHistoryLimit
+import no.nav.sf.nada.addHistoryLimitOnlyOneDateField
 import no.nav.sf.nada.addYesterdayRestriction
 import no.nav.sf.nada.application
 import no.nav.sf.nada.bulk.BulkOperation
@@ -58,7 +58,7 @@ object Gui {
         File("/tmp/responseAtDateCall").writeText(responseDate.toMessage())
         if (responseDate.status.code == 400) {
             result += "\nBad request: " + responseDate.bodyString()
-            File("/tmp/badRequestAtDateCall").writeText(responseDate.bodyString())
+            File("/tmp/badRequestAtDateCall").writeText(queryYesterday + "\nRESULT:\n" + responseDate.bodyString())
             success = false
         } else {
             try {
@@ -81,9 +81,14 @@ object Gui {
 //            total = 1000 // Will likely be hitting max - not worth big operation query (TODO could improve fe)
 //        } else {
         val responseTotal =
-            doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(5, useForLastModifiedDate)}")
+            doSFQuery(
+                "${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimitOnlyOneDateField(
+                    5,
+                    useForLastModifiedDate,
+                )}",
+            )
         File("/tmp/responseLast5Call").writeText(
-            "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimit(
+            "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimitOnlyOneDateField(
                 5,
                 useForLastModifiedDate,
             )}\nRESPONSE:\n" +

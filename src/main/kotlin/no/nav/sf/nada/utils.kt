@@ -105,7 +105,7 @@ fun String.addDateRestriction(
     return this + connector + clause.urlEncoded()
 }
 
-fun String.addHistoryLimit(
+fun String.addHistoryLimitOnlyOneDateField(
     days: Int?,
     dateFields: List<String>,
 ): String {
@@ -119,10 +119,7 @@ fun String.addHistoryLimit(
             "+WHERE+"
         }
 
-    val clause =
-        dateFields.joinToString(" OR ") { field ->
-            "$field = LAST_N_DAYS:$days"
-        }
+    val clause = "${dateFields.first()} = LAST_N_DAYS:$days"
 
     return this + connector + "($clause)".urlEncoded()
 }
