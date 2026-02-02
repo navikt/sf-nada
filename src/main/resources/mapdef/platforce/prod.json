@@ -140,7 +140,7 @@
         },
         "UserPermissionsOfflineUser": {
           "name": "offlineUser",
-          "type": "BOOL"
+          "type": "BOOLEAN"
         },
         "UserPermissionsSFContentUser": {
           "name": "sfContentUser",
