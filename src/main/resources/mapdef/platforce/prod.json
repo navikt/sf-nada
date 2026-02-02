@@ -116,31 +116,31 @@
         },
         "UserPermissionsAvantgoUser": {
           "name": "avantgoUser",
-          "type": "BOOL"
+          "type": "BOOLEAN"
         },
         "UserPermissionsCallCenterAutoLogin": {
           "name": "callCenterAutoLogin",
-          "type": "BOOL"
+          "type": "BOOLEAN"
         },
         "UserPermissionsInteractionUser": {
           "name": "interactionUser",
-          "type": "BOOL"
+          "type": "BOOLEAN"
         },
         "UserPermissionsKnowledgeUser": {
           "name": "knowledgeUser",
-          "type": "BOOL"
+          "type": "BOOLEAN"
         },
         "UserPermissionsLiveAgentUser": {
           "name": "liveAgentUser",
-          "type": "BOOL"
+          "type": "BOOLEAN"
         },
         "UserPermissionsMarketingUser": {
           "name": "marketingUser",
-          "type": "BOOL"
+          "type": "BOOLEAN"
         },
         "UserPermissionsMobileUser": {
           "name": "mobileUser",
-          "type": "BOOL"
+          "type": "BOOLEAN"
         },
         "UserPermissionsOfflineUser": {
           "name": "offlineUser",
@@ -148,11 +148,11 @@
         },
         "UserPermissionsSFContentUser": {
           "name": "sfContentUser",
-          "type": "BOOL"
+          "type": "BOOLEAN"
         },
         "UserPermissionsSupportUser": {
           "name": "supportUser",
-          "type": "BOOL"
+          "type": "BOOLEAN"
         }
       },
       "useForLastModifiedDate": "LastModifiedDate,LastLoginDate"

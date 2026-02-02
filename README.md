@@ -46,7 +46,7 @@ They are well formed json-objects defined as:
             "schema": {
                 "<field name in salesforce>": {
                     "name": "<column name in bigquery>",
-                    "type": "<type in bigquery - one of STRING, INTEGER, DATETIME, DATE or BOOL>"
+                    "type": "<type in bigquery - one of STRING, INTEGER, DATETIME, DATE or BOOLEAN>"
                  },
                 ...
             }
