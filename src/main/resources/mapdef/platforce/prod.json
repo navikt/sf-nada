@@ -92,7 +92,7 @@
       "withoutTimePart": "true"
     },
     "active-salesforce-user": {
-      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus')",
+      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsMobileUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus')",
       "schema": {
         "Id": {
           "name": "id",
@@ -113,6 +113,46 @@
         "Profile.UserLicense.Name": {
           "name": "userLicenseType",
           "type": "STRING"
+        },
+        "UserPermissionsAvantgoUser": {
+          "name": "avantgoUser",
+          "type": "BOOL"
+        },
+        "UserPermissionsCallCenterAutoLogin": {
+          "name": "callCenterAutoLogin",
+          "type": "BOOL"
+        },
+        "UserPermissionsInteractionUser": {
+          "name": "interactionUser",
+          "type": "BOOL"
+        },
+        "UserPermissionsKnowledgeUser": {
+          "name": "knowledgeUser",
+          "type": "BOOL"
+        },
+        "UserPermissionsLiveAgentUser": {
+          "name": "liveAgentUser",
+          "type": "BOOL"
+        },
+        "UserPermissionsMarketingUser": {
+          "name": "marketingUser",
+          "type": "BOOL"
+        },
+        "UserPermissionsMobileUser": {
+          "name": "mobileUser",
+          "type": "BOOL"
+        },
+        "UserPermissionsOfflineUser": {
+          "name": "offlineUser",
+          "type": "BOOL"
+        },
+        "UserPermissionsSFContentUser": {
+          "name": "sfContentUser",
+          "type": "BOOL"
+        },
+        "UserPermissionsSupportUser": {
+          "name": "supportUser",
+          "type": "BOOL"
         }
       },
       "useForLastModifiedDate": "LastModifiedDate,LastLoginDate"

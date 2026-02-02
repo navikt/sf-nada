@@ -43,7 +43,7 @@ dependencies {
     implementation "org.http4k:http4k-client-okhttp:6.25.1.0"
 
     implementation "io.github.microutils:kotlin-logging:3.0.5"
-    implementation "ch.qos.logback:logback-classic:1.5.20"
+    implementation "ch.qos.logback:logback-classic:1.5.25"
     implementation "net.logstash.logback:logstash-logback-encoder:8.1"
 
     implementation "io.prometheus:simpleclient_common:0.8.1"
