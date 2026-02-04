@@ -45,7 +45,7 @@ class QueryParseTest {
 
         val queryWithDateRestriction = query.addDateRestriction(LocalDate.parse("2000-01-01"), useForLastModifiedDate, withoutTimePart)
         Assertions.assertEquals(
-            "SELECT Id FROM Event WHERE (LastModifiedDate >= 2000-01-01T00:00:00Z AND LastModifiedDate < 2000-01-02T00:00:00Z)",
+            "SELECT Id FROM Event WHERE ((LastModifiedDate >= 2000-01-01T00:00:00Z AND LastModifiedDate < 2000-01-02T00:00:00Z))",
             queryWithDateRestriction,
         )
 
@@ -55,13 +55,15 @@ class QueryParseTest {
         val queryWithDateRestriction2 = query2.addDateRestriction(LocalDate.parse("2000-01-01"), useForLastModifiedDate, withoutTimePart)
 
         Assertions.assertEquals(
-            "SELECT Id FROM Event WHERE Source='A' AND (LastModifiedDate >= 2000-01-01T00:00:00Z AND LastModifiedDate < 2000-01-02T00:00:00Z)",
+            "SELECT Id FROM Event WHERE Source='A' AND ((LastModifiedDate >= 2000-01-01T00:00:00Z AND LastModifiedDate < 2000-01-02T00:00:00Z))",
             queryWithDateRestriction2,
         )
-    }
 
-    @Test
-    fun utility() {
-        // println(predictQueriesForWork())
+        val queryWithDateRestriction3 = query2.addDateRestriction(LocalDate.parse("2000-01-01"), useForLastModifiedDate + "AnotherDateField", withoutTimePart)
+
+        Assertions.assertEquals(
+            "SELECT Id FROM Event WHERE Source='A' AND ((LastModifiedDate >= 2000-01-01T00:00:00Z AND LastModifiedDate < 2000-01-02T00:00:00Z) OR (AnotherDateField >= 2000-01-01T00:00:00Z AND AnotherDateField < 2000-01-02T00:00:00Z))",
+            queryWithDateRestriction3,
+        )
     }
 }

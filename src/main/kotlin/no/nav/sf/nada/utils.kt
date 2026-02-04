@@ -85,7 +85,12 @@ fun String.addDateRestriction(
 ): String {
     require(dateFields.isNotEmpty()) { "At least one date field must be provided" }
 
-    val connector = if (contains("WHERE", ignoreCase = true)) " AND " else " WHERE "
+    val connector =
+        if (contains(Regex("\\bWHERE\\b", RegexOption.IGNORE_CASE))) {
+            " AND "
+        } else {
+            " WHERE "
+        }
 
     fun format(date: LocalDate): String =
         buildString {
@@ -101,7 +106,7 @@ fun String.addDateRestriction(
             "($field >= $today AND $field < $tomorrow)"
         }
 
-    return this + connector + clause
+    return "$this$connector($clause)"
 }
 
 fun String.addHistoryLimitOnlyOneDateField(
@@ -112,7 +117,7 @@ fun String.addHistoryLimitOnlyOneDateField(
     require(dateFields.isNotEmpty()) { "At least one date field must be provided" }
 
     val connector =
-        if (this.contains("WHERE", ignoreCase = true)) {
+        if (contains(Regex("\\bWHERE\\b", RegexOption.IGNORE_CASE))) {
             " AND "
         } else {
             " WHERE "
@@ -139,7 +144,12 @@ fun String.addNotRecordsFromTodayRestriction(
 ): String {
     if (dateFields.isEmpty()) return this
 
-    val connector = if (contains("WHERE", ignoreCase = true)) " AND " else " WHERE "
+    val connector =
+        if (contains(Regex("\\bWHERE\\b", RegexOption.IGNORE_CASE))) {
+            " AND "
+        } else {
+            " WHERE "
+        }
 
     val todayValue =
         buildString {
