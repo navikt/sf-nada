@@ -196,8 +196,6 @@ fun predictQueriesForWork(targetDate: LocalDate = LocalDate.now().minusDays(1)):
                     if (excluding) result += " Will skip excluded table $it\n"
                 }
             }.forEach { table ->
-                log.info { "Will attempt fetch and send for dataset $dataset, table $table, date $targetDate" }
-                fetchAndSend(targetDate, dataset, table)
                 val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
                 val withoutTimePart = application.mapDef[dataset]!![table]!!.withoutTimePart
                 val query =

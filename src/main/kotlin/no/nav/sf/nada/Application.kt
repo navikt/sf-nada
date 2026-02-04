@@ -57,7 +57,11 @@ class Application {
             "/internal/transfer" bind Method.GET to BulkOperation.transferHandler,
             "/internal/reset" bind Method.GET to BulkOperation.resetHandler,
             "/internal/storeExpectedCount" bind Method.GET to BulkOperation.storeExpectedCountHandler,
-            "/internal/predictQueries" bind Method.GET to { Response(Status.OK).body(predictQueriesForWork()) },
+            "/internal/predictQueries" bind Method.GET to {
+                Response(Status.OK)
+                    .header("Content-Type", "text/plain; charset=utf-8")
+                    .body(predictQueriesForWork())
+            },
         )
 
     private fun apiServer(port: Int = 8080) = api().asServer(Netty(port))
