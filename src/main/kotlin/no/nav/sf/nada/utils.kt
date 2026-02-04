@@ -11,7 +11,6 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
-import org.http4k.urlEncoded
 import java.io.File
 import java.io.StringReader
 import java.time.LocalDate
@@ -86,7 +85,7 @@ fun String.addDateRestriction(
 ): String {
     require(dateFields.isNotEmpty()) { "At least one date field must be provided" }
 
-    val connector = if (contains("WHERE", ignoreCase = true)) "+AND+" else "+WHERE+"
+    val connector = if (contains("WHERE", ignoreCase = true)) " AND " else " WHERE "
 
     fun format(date: LocalDate): String =
         buildString {
@@ -102,7 +101,7 @@ fun String.addDateRestriction(
             "($field >= $today AND $field < $tomorrow)"
         }
 
-    return this + connector + clause.urlEncoded()
+    return this + connector + clause
 }
 
 fun String.addHistoryLimitOnlyOneDateField(
@@ -113,15 +112,15 @@ fun String.addHistoryLimitOnlyOneDateField(
     require(dateFields.isNotEmpty()) { "At least one date field must be provided" }
 
     val connector =
-        if (Regex("""\bWHERE\b""", RegexOption.IGNORE_CASE).containsMatchIn(this)) {
-            "+AND+"
+        if (this.contains("WHERE", ignoreCase = true)) {
+            " AND "
         } else {
-            "+WHERE+"
+            " WHERE "
         }
 
     val clause = "${dateFields.first()} = LAST_N_DAYS:$days"
 
-    return this + connector + "($clause)".urlEncoded()
+    return "$this$connector($clause)"
 }
 
 fun String.addLimitRestriction(maxRecords: Int = 1000): String {
@@ -129,7 +128,7 @@ fun String.addLimitRestriction(maxRecords: Int = 1000): String {
         if (this.contains("LIMIT", ignoreCase = true)) {
             throw IllegalArgumentException("Query already contains a LIMIT clause.")
         } else {
-            "+LIMIT"
+            " LIMIT"
         }
     return "$this$connector+$maxRecords"
 }
@@ -140,22 +139,20 @@ fun String.addNotRecordsFromTodayRestriction(
 ): String {
     if (dateFields.isEmpty()) return this
 
-    val connector = if (contains("WHERE", ignoreCase = true)) "+AND+" else "+WHERE+"
+    val connector = if (contains("WHERE", ignoreCase = true)) " AND " else " WHERE "
 
     val todayValue =
         buildString {
             append(LocalDate.now().format(DateTimeFormatter.ISO_DATE))
             if (!withoutTimePart) append("T00:00:00Z")
-        }.urlEncoded()
-
-    val encodedLessThan = "<".urlEncoded()
-
-    val andClause =
-        dateFields.joinToString("+AND+") { field ->
-            "$field$encodedLessThan$todayValue"
         }
 
-    return "$this$connector$andClause" // %28 and %29 are ( )
+    val andClause =
+        dateFields.joinToString(" AND ") { field ->
+            "$field<$todayValue"
+        }
+
+    return "$this$connector$andClause"
 }
 
 fun String.addYesterdayRestriction(

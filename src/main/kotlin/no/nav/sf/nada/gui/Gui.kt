@@ -21,6 +21,7 @@ import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
+import org.http4k.urlEncoded
 import java.io.File
 
 typealias BigQueryMetadata = Map<String, Gui.DatasetMetadata>
@@ -54,7 +55,7 @@ object Gui {
         var yesterday = 0
         var last5 = 0
 
-        val responseDate = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}$queryYesterday")
+        val responseDate = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${queryYesterday.urlEncoded()}")
         File("/tmp/responseAtDateCall").writeText(responseDate.toMessage())
         if (responseDate.status.code == 400) {
             result += "\nBad request: " + responseDate.bodyString()
@@ -77,15 +78,12 @@ object Gui {
 
         result += "<br>"
 
-//        if (yesterday > 100) {
-//            total = 1000 // Will likely be hitting max - not worth big operation query (TODO could improve fe)
-//        } else {
         val responseTotal =
             doSFQuery(
                 "${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimitOnlyOneDateField(
                     5,
                     useForLastModifiedDate,
-                )}",
+                ).urlEncoded()}",
             )
         File("/tmp/responseLast5Call").writeText(
             "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimitOnlyOneDateField(
@@ -94,29 +92,32 @@ object Gui {
             )}\nRESPONSE:\n" +
                 responseTotal.toMessage(),
         )
-        if (responseTotal.status.code == 400) {
-            result += "Bad request: " + responseTotal.bodyString()
-            File("/tmp/badRequestLast5Call").writeText(responseTotal.bodyString())
-            success = false
-        } else if (responseTotal.status.code == 504) {
-            result += "Gateway timeout: " + responseTotal.bodyString()
-            File("/tmp/gatewayTimeoutLast5Call").writeText(responseTotal.bodyString())
-            success = false
-        } else {
-            try {
-                val obj = JsonParser.parseString(responseTotal.bodyString()) as JsonObject
-                val totalSize = obj["totalSize"].asInt
-                Metrics.latestTotalFromTestCall.labels(table).set(totalSize.toDouble())
-                result += "Total number of records found is $totalSize"
-                log.info { "Total number of records found is $totalSize" }
-                last5 = totalSize
-            } catch (e: Exception) {
+        when (responseTotal.status.code) {
+            400 -> {
+                result += "Bad request: " + responseTotal.bodyString()
+                File("/tmp/badRequestLast5Call").writeText(responseTotal.bodyString())
                 success = false
-                result += e.message
-                File("/tmp/exceptionAtTotalCall").writeText(e.toString() + "\n" + e.stackTraceToString())
+            }
+            504 -> {
+                result += "Gateway timeout: " + responseTotal.bodyString()
+                File("/tmp/gatewayTimeoutLast5Call").writeText(responseTotal.bodyString())
+                success = false
+            }
+            else -> {
+                try {
+                    val obj = JsonParser.parseString(responseTotal.bodyString()) as JsonObject
+                    val totalSize = obj["totalSize"].asInt
+                    Metrics.latestTotalFromTestCall.labels(table).set(totalSize.toDouble())
+                    result += "Total number of records found is $totalSize"
+                    log.info { "Total number of records found is $totalSize" }
+                    last5 = totalSize
+                } catch (e: Exception) {
+                    success = false
+                    result += e.message
+                    File("/tmp/exceptionAtTotalCall").writeText(e.toString() + "\n" + e.stackTraceToString())
+                }
             }
         }
-//        }
 
         val response =
             if (success) {
@@ -128,23 +129,6 @@ object Gui {
 
         File("/tmp/lasttestcallresponse").writeText(response.toMessage())
         response
-    }
-
-    private val FROM_REGEX =
-        Regex(
-            pattern = "\\bFROM\\b",
-            option = RegexOption.IGNORE_CASE,
-        )
-
-    fun String.toSoqlCountQuery(): String {
-        val fromMatch =
-            FROM_REGEX.find(this)
-                ?: throw IllegalArgumentException("Invalid SOQL query: missing FROM clause")
-
-        // Everything from FROM ... onward is kept
-        val fromClause = this.substring(fromMatch.range.first)
-
-        return "SELECT+COUNT()+$fromClause"
     }
 
     // Data classes for metadata

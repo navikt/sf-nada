@@ -18,7 +18,7 @@ data class TableDef(
 )
 
 fun parseMapDef(filePath: String): Map<String, Map<String, TableDef>> =
-    parseMapDef(JsonParser.parseString(Application::class.java.getResource(filePath).readText()) as JsonObject)
+    parseMapDef(JsonParser.parseString(Application::class.java.getResource(filePath)!!.readText()) as JsonObject)
 
 fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
     val result: MutableMap<String, MutableMap<String, TableDef>> = mutableMapOf()
@@ -28,10 +28,14 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
         result[dataSetEntry.key] = mutableMapOf()
         objDS.entrySet().forEach { tableEntry ->
             val objT = tableEntry.value.asJsonObject
-            val query = objT["query"]!!.asString.replace(" ", "+")
+            val query = objT["query"]!!.asString
             val objS = objT["schema"]!!.asJsonObject
             val useForLastModifiedDate =
-                objT.get("useForLastModifiedDate")?.asString?.split(",") ?: listOf("LastModifiedDate")
+                objT
+                    .get("useForLastModifiedDate")
+                    ?.asString
+                    ?.split(",")
+                    ?.map { it.trim() } ?: listOf("LastModifiedDate")
             val withoutTimePart = objT.get("withoutTimePart")?.asBoolean ?: false
 
             result[dataSetEntry.key]!![tableEntry.key] =

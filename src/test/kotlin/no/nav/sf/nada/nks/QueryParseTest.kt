@@ -2,6 +2,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import no.nav.sf.nada.addDateRestriction
 import no.nav.sf.nada.parseMapDef
+import no.nav.sf.nada.predictQueriesForWork
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -40,29 +41,27 @@ class QueryParseTest {
         val useForLastModifiedDate = exampleMapDef["dataset"]!!["table"]!!.useForLastModifiedDate
         val withoutTimePart = exampleMapDef["dataset"]!!["table"]!!.withoutTimePart
         val query = exampleMapDef["dataset"]!!["table"]!!.query
-        Assertions.assertEquals("SELECT+Id+FROM+Event", query)
+        Assertions.assertEquals("SELECT Id FROM Event", query)
 
         val queryWithDateRestriction = query.addDateRestriction(LocalDate.parse("2000-01-01"), useForLastModifiedDate, withoutTimePart)
         Assertions.assertEquals(
-            "SELECT+Id+FROM+Event+WHERE+%28LastModifiedDate+%3E%3D+2000-01-01T00%3A00%3A00Z+AND+LastModifiedDate+%3C+2000-01-02T00%3A00%3A00Z%29",
+            "SELECT Id FROM Event WHERE (LastModifiedDate >= 2000-01-01T00:00:00Z AND LastModifiedDate < 2000-01-02T00:00:00Z)",
             queryWithDateRestriction,
         )
 
         val query2 = exampleMapDef["dataset"]!!["table2"]!!.query
-        Assertions.assertEquals("SELECT+Id+FROM+Event+WHERE+Source='A'", query2)
+        Assertions.assertEquals("SELECT Id FROM Event WHERE Source='A'", query2)
 
         val queryWithDateRestriction2 = query2.addDateRestriction(LocalDate.parse("2000-01-01"), useForLastModifiedDate, withoutTimePart)
 
         Assertions.assertEquals(
-            "SELECT+Id+FROM+Event+WHERE+Source='A'+AND+%28LastModifiedDate+%3E%3D+2000-01-01T00%3A00%3A00Z+AND+LastModifiedDate+%3C+2000-01-02T00%3A00%3A00Z%29",
+            "SELECT Id FROM Event WHERE Source='A' AND (LastModifiedDate >= 2000-01-01T00:00:00Z AND LastModifiedDate < 2000-01-02T00:00:00Z)",
             queryWithDateRestriction2,
         )
     }
 
-//    @Test
-//    fun utility() {
-//        val query = exampleMapDef["dataset"]!!["table"]!!.query
-//        println(query)
-//        println(query.toSoqlCountQuery())
-//    }
+    @Test
+    fun utility() {
+        // println(predictQueriesForWork())
+    }
 }

@@ -5,6 +5,7 @@ import org.http4k.client.OkHttp
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
+import org.http4k.urlEncoded
 import java.io.File
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -14,29 +15,31 @@ object HttpCalls {
 
     fun doSFQuery(query: String): Response {
         val request =
-            Request(Method.GET, "$query")
+            Request(Method.GET, query)
                 .header("Authorization", "Bearer ${AccessTokenHandler.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
         File("/tmp/queryToHappen").writeText(request.toMessage())
         val response = client.value(request)
         File("/tmp/responseThatHappend").writeText(response.toMessage())
-        // At 400 should to
         return response
     }
 
-    private fun String.urlDecoded() = URLDecoder.decode(this, StandardCharsets.UTF_8.toString())
+    fun queryToUseForBulkQuery(
+        dataset: String,
+        table: String,
+    ): String {
+        val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
+        val withoutTimePart = application.mapDef[dataset]!![table]!!.withoutTimePart
+        return application.mapDef[dataset]!![table]!!
+            .query
+            .addNotRecordsFromTodayRestriction(useForLastModifiedDate, withoutTimePart)
+    }
 
     fun doSFBulkStartQuery(
         dataset: String,
         table: String,
     ): Response {
-        val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
-        val withoutTimePart = application.mapDef[dataset]!![table]!!.withoutTimePart
-        val query =
-            application.mapDef[dataset]!![table]!!
-                .query
-                .addNotRecordsFromTodayRestriction(useForLastModifiedDate, withoutTimePart)
-                .urlDecoded()
+        val query = queryToUseForBulkQuery(dataset, table)
         val request =
             Request(Method.POST, "${AccessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query")
                 .header("Authorization", "Bearer ${AccessTokenHandler.accessToken}")

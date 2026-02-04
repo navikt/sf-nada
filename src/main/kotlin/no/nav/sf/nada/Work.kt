@@ -13,6 +13,7 @@ import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.bulk.BulkOperation
 import no.nav.sf.nada.token.AccessTokenHandler
 import org.http4k.core.Response
+import org.http4k.urlEncoded
 import java.io.File
 import java.lang.IllegalStateException
 import java.lang.RuntimeException
@@ -21,14 +22,14 @@ import java.time.LocalDate
 private val log = KotlinLogging.logger {}
 
 fun fetchAndSend(
-    localDate: LocalDate?,
+    targetDate: LocalDate?,
     dataset: String,
     table: String,
 ) {
-    if (localDate == null) {
+    if (targetDate == null) {
         log.warn { "No localDate for fetchAndSend specified - will fetch for dataset $dataset table $table without date constraints" }
     } else {
-        log.info { "Will perform fetchAndSend for dataset $dataset table $table on localDate $localDate" }
+        log.info { "Will perform fetchAndSend for dataset $dataset table $table on localDate $targetDate" }
     }
     if (!application.mapDef.containsKey(dataset)) {
         throw RuntimeException("mapDef.json is missing a definition for dataset $dataset")
@@ -40,7 +41,7 @@ fun fetchAndSend(
     val withoutTimePart = application.mapDef[dataset]!![table]!!.withoutTimePart
     val query =
         application.mapDef[dataset]!![table]!!.query.let { q ->
-            if (localDate == null) q else q.addDateRestriction(localDate, useForLastModifiedDate, withoutTimePart)
+            if (targetDate == null) q else q.addDateRestriction(targetDate, useForLastModifiedDate, withoutTimePart)
         }
     log.info { "Will use query: $query" }
 
@@ -49,7 +50,7 @@ fun fetchAndSend(
     val tableId = TableId.of(dataset, table)
 
     Metrics.fetchRequest.inc()
-    var response = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}$query")
+    var response = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.urlEncoded()}")
 
     if (response.status.code == 400) {
         Metrics.productsQueryFailed.labels(table).inc()
@@ -105,23 +106,6 @@ fun JsonObject.findBottomElement(defKey: String): JsonElement {
     return current
 }
 
-/*
-fun JsonObject.findBottomElement(defKey: String): JsonElement {
-    val subKeys = defKey.split(".")
-    val depth = subKeys.size
-    if (!this.has(subKeys[0])) {
-        return JsonNull.INSTANCE
-    }
-    if (depth == 1) return this[defKey]
-    var element = this[subKeys[0]]
-    for (i in 1 until subKeys.size) {
-        element = (element as JsonObject)[subKeys[i]]
-    }
-    return element
-}
-
- */
-
 fun remapAndSendRecords(
     records: JsonArray,
     tableId: TableId,
@@ -159,11 +143,8 @@ fun JsonObject.toRowMap(fieldDefMap: MutableMap<String, FieldDef>): MutableMap<S
     val rowMap: MutableMap<String, Any?> = mutableMapOf()
     fieldDefMap.forEach { defEntry ->
         val element = this.findBottomElement(defEntry.key)
-        // if (!postToBigQuery) {
         val elementValueOrNull = if (element is JsonNull) JsonPrimitive("null") else element
-        // log.info { "${elementValueOrNull.asString} -> ${defEntry.value.name} (${defEntry.value.type})\n" }
         File("/tmp/translateProcess").appendText("${elementValueOrNull.asString} -> ${defEntry.value.name} (${defEntry.value.type})\n")
-        // }
         rowMap[defEntry.value.name] =
             if (element is JsonNull) {
                 null
@@ -203,4 +184,33 @@ internal fun work(targetDate: LocalDate = LocalDate.now().minusDays(1)) {
         log.error { "Failed to do work ${e.message} - has posted partially: ${application.hasPostedToday}" }
     }
     log.info { "Work session finished" }
+}
+
+fun predictQueriesForWork(targetDate: LocalDate = LocalDate.now().minusDays(1)): String {
+    var result = "Target date: $targetDate\n"
+    application.mapDef.keys.forEach { dataset ->
+        application.mapDef[dataset]!!
+            .keys
+            .filter {
+                !(application.excludeTables.contains(it)).also { excluding ->
+                    if (excluding) result += " Will skip excluded table $it\n"
+                }
+            }.forEach { table ->
+                log.info { "Will attempt fetch and send for dataset $dataset, table $table, date $targetDate" }
+                fetchAndSend(targetDate, dataset, table)
+                val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
+                val withoutTimePart = application.mapDef[dataset]!![table]!!.withoutTimePart
+                val query =
+                    application.mapDef[dataset]!![table]!!.query.let { q ->
+                        q.addDateRestriction(targetDate, useForLastModifiedDate, withoutTimePart)
+                    }
+
+                val bulk = HttpCalls.queryToUseForBulkQuery(dataset, table)
+
+                result += "$dataset $table fetch query:\n$query\nbulk:\n $bulk\n**********************\n"
+
+                application.hasPostedToday = true
+            }
+    }
+    return result
 }
