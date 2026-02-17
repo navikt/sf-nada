@@ -199,19 +199,6 @@
         }
       },
       "useForLastModifiedDate": "LoginTime"
-    },
-    "network": {
-      "query": "SELECT Id, Name FROM Network",
-      "schema": {
-        "Id": {
-          "name": "id",
-          "type": "STRING"
-        },
-        "Name": {
-          "name": "name",
-          "type": "STRING"
-        }
-      }
     }
   }
 }

@@ -9,5 +9,5 @@ spec:
     - name: POST_TO_BIGQUERY
       value: 'true'
     - name: EXCLUDE_TABLES
-      value: 'network,active-feature-license'
+      value: '' #network, active-feature-license
 
