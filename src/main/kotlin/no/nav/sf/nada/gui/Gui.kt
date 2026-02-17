@@ -280,6 +280,7 @@ object Gui {
                             columns.add(columnInfoQueryFieldMappedToNonExistingBigQueryField)
                         }
 
+                    log.info("Before metadata creation: $datasetName , $tableName , oinfo: ${BulkOperation.operationInfo}")
                     // Add table metadata to the list
                     val tableMetadata =
                         TableMetadata(

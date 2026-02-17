@@ -1,5 +1,30 @@
 {
   "license": {
+    "active-feature-license": {
+      "query": "SELECT Id, Assignee.CRM_NAV_Ident__c, PermissionSetLicense.MasterLabel, Assignee.Profile.UserLicense.Name, Assignee.LastLoginDate FROM PermissionSetLicenseAssign WHERE Assignee.IsActive = true AND Assignee.Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND Assignee.CRM_NAV_Ident__c != null",
+      "schema": {
+        "Id": {
+          "name": "id",
+          "type": "STRING"
+        },
+        "Assignee.CRM_NAV_Ident__c": {
+          "name": "navIdent",
+          "type": "STRING"
+        },
+        "PermissionSetLicense.MasterLabel": {
+          "name": "licenseName",
+          "type": "STRING"
+        },
+        "Assignee.Profile.UserLicense.Name": {
+          "name": "userLicenseType",
+          "type": "STRING"
+        },
+        "Assignee.LastLoginDate": {
+          "name": "lastLoginAt",
+          "type": "DATETIME"
+        }
+      }
+    },
     "active-feature-license-staging": {
       "query": "SELECT Id, Assignee.CRM_NAV_Ident__c, PermissionSetLicense.MasterLabel, Assignee.Profile.UserLicense.Name, Assignee.LastLoginDate FROM PermissionSetLicenseAssign WHERE Assignee.IsActive = true AND Assignee.Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND Assignee.CRM_NAV_Ident__c != null",
       "schema": {
