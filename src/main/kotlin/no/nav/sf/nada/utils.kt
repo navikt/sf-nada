@@ -2,6 +2,7 @@
 
 package no.nav.sf.nada
 
+import com.google.cloud.bigquery.TableId
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -219,3 +220,7 @@ fun parseCSVToJsonArrays(csvData: String): List<JsonArray> {
 
     return listOfJsonArrays
 }
+
+fun TableId.isStaging(): Boolean = this.table.endsWith("-staging")
+
+fun TableId.stagingTarget(): String = this.table.removeSuffix("-staging")

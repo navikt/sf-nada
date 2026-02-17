@@ -1,6 +1,11 @@
 package no.nav.sf.nada
 
+import com.google.cloud.bigquery.BigQuery
+import com.google.cloud.bigquery.BigQueryException
 import com.google.cloud.bigquery.InsertAllRequest
+import com.google.cloud.bigquery.JobInfo
+import com.google.cloud.bigquery.JobStatistics
+import com.google.cloud.bigquery.QueryJobConfiguration
 import com.google.cloud.bigquery.TableId
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -17,6 +22,7 @@ import org.http4k.urlEncoded
 import java.io.File
 import java.lang.IllegalStateException
 import java.lang.RuntimeException
+import java.lang.Thread.sleep
 import java.time.LocalDate
 
 private val log = KotlinLogging.logger {}
@@ -47,7 +53,7 @@ fun fetchAndSend(
 
     val fieldDef = application.mapDef[dataset]!![table]!!.fieldDefMap
 
-    val tableId = TableId.of(dataset, table)
+    val tableId = TableId.of(application.projectId, dataset, table)
 
     Metrics.fetchRequest.inc()
     var response = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.urlEncoded()}")
@@ -69,6 +75,11 @@ fun fetchAndSend(
     var nextRecordsUrl: String? = obj["nextRecordsUrl"]?.asString
     log.info { "QUERY RESULT overview - totalSize $totalSize, done $done, nextRecordsUrl $nextRecordsUrl" }
     Metrics.productsRead.labels(table).inc(totalSize.toDouble())
+
+    if (tableId.isStaging()) {
+        truncateTable(tableId)
+    }
+
     if (totalSize > 0) {
         var records = obj["records"].asJsonArray
         remapAndSendRecords(records, tableId, fieldDef)
@@ -81,6 +92,13 @@ fun fetchAndSend(
             records = obj["records"].asJsonArray
             remapAndSendRecords(records, tableId, fieldDef)
         }
+    }
+
+    if (tableId.isStaging()) {
+        mergeStagingIntoTargetWithRetry(
+            tableId,
+            keys = listOf("navIdent"), // or add "licenseName"
+        )
     }
 }
 
@@ -211,4 +229,90 @@ fun predictQueriesForWork(targetDate: LocalDate = LocalDate.now().minusDays(1)):
             }
     }
     return result
+}
+
+fun truncateTable(tableId: TableId) {
+    val bigQuery = application.bigQueryService
+
+    val tableRef = "`${tableId.project}.${tableId.dataset}.${tableId.table}`"
+
+    val query = "TRUNCATE TABLE $tableRef"
+
+    val job =
+        bigQuery.create(
+            JobInfo.of(
+                QueryJobConfiguration.newBuilder(query).build(),
+            ),
+        )
+
+    job.waitFor()
+
+    if (job.status.error != null) {
+        throw RuntimeException("Failed to truncate table ${tableId.table}: ${job.status.error}")
+    }
+}
+
+fun mergeStagingIntoTargetWithRetry(
+    staging: TableId,
+    keys: List<String>,
+    maxRetries: Int = 5,
+    initialDelayMs: Long = 2000,
+) {
+    val bigQuery = application.bigQueryService
+
+    val stagingRef = "`${staging.project}.${staging.dataset}.${staging.table}`"
+    val targetRef = "`${staging.project}.${staging.dataset}.${staging.stagingTarget()}`"
+
+    val onClause = keys.joinToString(" AND ") { "T.$it = S.$it" }
+
+    val query =
+        """
+        MERGE $targetRef T
+        USING $stagingRef S
+        ON $onClause
+        WHEN MATCHED THEN
+          UPDATE SET *
+        WHEN NOT MATCHED THEN
+          INSERT ROW
+        """.trimIndent()
+
+    var attempt = 0
+    var delay = initialDelayMs
+
+    while (attempt < maxRetries) {
+        try {
+            val job =
+                bigQuery.create(
+                    JobInfo.of(QueryJobConfiguration.newBuilder(query).build()),
+                )
+            job.waitFor()
+
+            if (job.status.error != null) {
+                throw RuntimeException("Merge failed: ${job.status.error}")
+            }
+
+            // Success
+            log.info { "Attempt statistics for $targetRef" }
+            val stats = job.getStatistics<JobStatistics.QueryStatistics>()
+            stats.dmlStats?.let { dml ->
+                log.info(
+                    "statistics for $targetRef Inserted=${dml.insertedRowCount}, Updated=${dml.updatedRowCount}, Deleted=${dml.deletedRowCount}",
+                )
+            }
+
+            return
+        } catch (e: BigQueryException) {
+            val msg = e.message ?: ""
+            if (msg.contains("streaming buffer") || msg.contains("would affect rows in the streaming buffer")) {
+                attempt++
+                println("MERGE blocked by streaming buffer, retry #$attempt in $delay ms...")
+                sleep(delay)
+                delay *= 2 // exponential backoff
+            } else {
+                throw e
+            }
+        }
+    }
+
+    throw RuntimeException("Merge failed after $maxRetries retries due to streaming buffer")
 }

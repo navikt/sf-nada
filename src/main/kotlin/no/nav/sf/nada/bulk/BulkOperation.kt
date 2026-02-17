@@ -150,7 +150,7 @@ object BulkOperation {
         val currentOperationInfo = operationInfo[dataset]!![table]!!
         log.info { "Starting bulk transfer from batch job ${currentOperationInfo.jobId} to $dataset $table" }
         val fieldDef = application.mapDef[dataset]!![table]!!.fieldDefMap
-        val tableId = TableId.of(dataset, table)
+        val tableId = TableId.of(application.projectId, dataset, table)
         var locator: String? = null
 
         do {
