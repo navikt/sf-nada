@@ -319,6 +319,20 @@ fun mergeStagingIntoTargetWithRetry(
                 throw RuntimeException("Merge failed: ${job.status.error}")
             }
 
+            val stats = job.getStatistics<JobStatistics.QueryStatistics>()
+
+            log.info("Merge to ${staging.stagingTarget()} successful")
+
+            val statsInfo =
+                "Merge stats ${staging.stagingTarget()} : " +
+                    "bytesProcessed=${stats.totalBytesProcessed}, " +
+                    "slotMs=${stats.totalSlotMs}, " +
+                    "durationMs=${stats.endTime - stats.startTime}"
+
+            log.info(statsInfo)
+
+            File("/tmp/latestMergeSuccess").writeText(statsInfo)
+
             // Success
             return
         } catch (e: BigQueryException) {

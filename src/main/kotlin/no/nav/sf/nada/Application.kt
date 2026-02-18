@@ -80,6 +80,8 @@ class Application {
         oneOff("2024-06-07")
         oneOff("2024-06-10")
         oneOff("2024-06-13")
+
+        // fetchAndSend(LocalDate.now().minusDays(1), dataset, table) - use this to only do for one specific table (try out on a -staging table to test merge for example)
          */
 
         loop()
