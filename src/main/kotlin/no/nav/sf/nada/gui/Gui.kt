@@ -159,6 +159,7 @@ object Gui {
 
         // List datasets in the project
         val datasets = application.bigQueryService.listDatasets(application.projectId).iterateAll()
+
         for (dataset in datasets) {
             val datasetName = dataset.datasetId.dataset
 

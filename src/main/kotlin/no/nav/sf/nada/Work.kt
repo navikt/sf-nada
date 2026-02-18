@@ -6,6 +6,8 @@ import com.google.cloud.bigquery.InsertAllRequest
 import com.google.cloud.bigquery.JobInfo
 import com.google.cloud.bigquery.JobStatistics
 import com.google.cloud.bigquery.QueryJobConfiguration
+import com.google.cloud.bigquery.StandardTableDefinition
+import com.google.cloud.bigquery.TableDefinition
 import com.google.cloud.bigquery.TableId
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -265,15 +267,37 @@ fun mergeStagingIntoTargetWithRetry(
 
     val onClause = keys.joinToString(" AND ") { "T.$it = S.$it" }
 
+    // Fetch target table schema to generate UPDATE / INSERT
+
+    val targetTable =
+        application.bigQueryService.getTable(
+            TableId.of(staging.project, staging.dataset, staging.stagingTarget()),
+            BigQuery.TableOption.fields(BigQuery.TableField.SCHEMA),
+        ) ?: throw RuntimeException("Target table not found")
+
+    val definition = targetTable.getDefinition<TableDefinition>() as StandardTableDefinition
+
+    val columns = definition.schema!!.fields.map { it.name }
+
+    // Exclude the merge keys from the update list (optional)
+    val updateColumns = columns.filter { it !in keys }
+
+    // Build UPDATE clause
+    val updateClause = updateColumns.joinToString(", ") { col -> "T.$col = S.$col" }
+
+    // Build INSERT clause
+    val insertColumns = columns.joinToString(", ")
+    val insertValues = columns.joinToString(", ") { col -> "S.$col" }
+
     val query =
         """
         MERGE $targetRef T
         USING $stagingRef S
         ON $onClause
         WHEN MATCHED THEN
-          UPDATE SET *
+          UPDATE SET $updateClause
         WHEN NOT MATCHED THEN
-          INSERT ROW
+          INSERT ($insertColumns) VALUES ($insertValues)
         """.trimIndent()
 
     File("/tmp/latestMergeQuery").writeText(query)
