@@ -117,7 +117,7 @@
       "withoutTimePart": "true"
     },
     "active-salesforce-user": {
-      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND Assignee.CRM_NAV_Ident__c != null",
+      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND CRM_NAV_Ident__c != null",
       "schema": {
         "Id": {
           "name": "id",
@@ -179,7 +179,7 @@
       "useForLastModifiedDate": "LastModifiedDate,LastLoginDate"
     },
     "active-salesforce-user-staging": {
-      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND Assignee.CRM_NAV_Ident__c != null",
+      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND CRM_NAV_Ident__c != null",
       "schema": {
         "Id": {
           "name": "id",
@@ -241,7 +241,7 @@
       "useForLastModifiedDate": "LastModifiedDate,LastLoginDate"
     },
     "active-salesforce-user-v2": {
-      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND Assignee.CRM_NAV_Ident__c != null",
+      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND CRM_NAV_Ident__c != null",
       "schema": {
         "Id": {
           "name": "id",
@@ -303,7 +303,7 @@
       "useForLastModifiedDate": "LastModifiedDate,LastLoginDate"
     },
     "active-salesforce-user-v2-staging": {
-      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND Assignee.CRM_NAV_Ident__c != null",
+      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND CRM_NAV_Ident__c != null",
       "schema": {
         "Id": {
           "name": "id",
