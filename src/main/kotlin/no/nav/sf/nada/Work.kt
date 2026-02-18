@@ -257,7 +257,7 @@ fun truncateTable(tableId: TableId) {
 fun mergeStagingIntoTargetWithRetry(
     staging: TableId,
     keys: List<String>,
-    maxRetries: Int = 5,
+    maxRetries: Int = 10,
     initialDelayMs: Long = 2000,
 ) {
     val bigQuery = application.bigQueryService
@@ -320,30 +320,6 @@ fun mergeStagingIntoTargetWithRetry(
             }
 
             // Success
-            val targetTableAnew =
-                application.bigQueryService.getTable(
-                    TableId.of(staging.project, staging.dataset, staging.stagingTarget()),
-                    BigQuery.TableOption.fields(BigQuery.TableField.NUM_ROWS),
-                ) ?: throw RuntimeException("Target table not found")
-
-            val definition = targetTableAnew.getDefinition<TableDefinition>() as StandardTableDefinition
-
-            val numRowsAfter = definition.numRows!!
-
-            val stagingTable =
-                application.bigQueryService.getTable(
-                    TableId.of(staging.project, staging.dataset, staging.table),
-                    BigQuery.TableOption.fields(BigQuery.TableField.NUM_ROWS),
-                ) ?: throw RuntimeException("Target table not found")
-
-            val definitionStaging = stagingTable.getDefinition<TableDefinition>() as StandardTableDefinition
-
-            val numRowsStaging = definitionStaging.numRows
-
-            File(
-                "/tmp/latestMergeResult-${staging.stagingTarget()}",
-            ).writeText("Target before: $numRowsBefore, after $numRowsAfter, staging $numRowsStaging")
-
             return
         } catch (e: BigQueryException) {
             val msg = e.message ?: ""
