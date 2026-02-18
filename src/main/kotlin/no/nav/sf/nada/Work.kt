@@ -97,7 +97,7 @@ fun fetchAndSend(
     if (tableId.isStaging()) {
         mergeStagingIntoTargetWithRetry(
             tableId,
-            keys = listOf("navIdent"), // or add "licenseName"
+            keys = listOf("navIdent", "licenseName"), // or add "licenseName"
         )
     }
 }
@@ -275,6 +275,8 @@ fun mergeStagingIntoTargetWithRetry(
         WHEN NOT MATCHED THEN
           INSERT ROW
         """.trimIndent()
+
+    File("/tmp/latestMergeQuery").writeText(query)
 
     var attempt = 0
     var delay = initialDelayMs
