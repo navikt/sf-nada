@@ -273,10 +273,12 @@ fun mergeStagingIntoTargetWithRetry(
         application.bigQueryService.getTable(
             TableId.of(staging.project, staging.dataset, staging.stagingTarget()),
             BigQuery.TableOption.fields(BigQuery.TableField.SCHEMA),
+            BigQuery.TableOption.fields(BigQuery.TableField.NUM_ROWS),
         ) ?: throw RuntimeException("Target table not found")
 
     val definition = targetTable.getDefinition<TableDefinition>() as StandardTableDefinition
 
+    val numRowsBefore = definition.numRows!!
     val columns = definition.schema!!.fields.map { it.name }
 
     // Exclude the merge keys from the update list (optional)
@@ -318,13 +320,29 @@ fun mergeStagingIntoTargetWithRetry(
             }
 
             // Success
-            log.info { "Attempt statistics for $targetRef" }
-            val stats = job.getStatistics<JobStatistics.QueryStatistics>()
-            stats.dmlStats?.let { dml ->
-                log.info(
-                    "statistics for $targetRef Inserted=${dml.insertedRowCount}, Updated=${dml.updatedRowCount}, Deleted=${dml.deletedRowCount}",
-                )
-            }
+            val targetTableAnew =
+                application.bigQueryService.getTable(
+                    TableId.of(staging.project, staging.dataset, staging.stagingTarget()),
+                    BigQuery.TableOption.fields(BigQuery.TableField.NUM_ROWS),
+                ) ?: throw RuntimeException("Target table not found")
+
+            val definition = targetTableAnew.getDefinition<TableDefinition>() as StandardTableDefinition
+
+            val numRowsAfter = definition.numRows!!
+
+            val stagingTable =
+                application.bigQueryService.getTable(
+                    TableId.of(staging.project, staging.dataset, staging.table),
+                    BigQuery.TableOption.fields(BigQuery.TableField.NUM_ROWS),
+                ) ?: throw RuntimeException("Target table not found")
+
+            val definitionStaging = stagingTable.getDefinition<TableDefinition>() as StandardTableDefinition
+
+            val numRowsStaging = definitionStaging.numRows
+
+            File(
+                "/tmp/latestMergeResult-${staging.stagingTarget()}",
+            ).writeText("Target before: $numRowsBefore, after $numRowsAfter, staging $numRowsStaging")
 
             return
         } catch (e: BigQueryException) {

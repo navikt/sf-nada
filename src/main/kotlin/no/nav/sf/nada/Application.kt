@@ -35,7 +35,7 @@ class Application {
 
     val excludeTables = envAsList(config_EXCLUDE_TABLES)
 
-    var hasPostedToday = false // Assume posted today Use oneOff below if you want to post for certain dates at deploy
+    var hasPostedToday = true // Assume posted today Use oneOff below if you want to post for certain dates at deploy
 
     val bigQueryService: BigQuery =
         BigQueryOptions
