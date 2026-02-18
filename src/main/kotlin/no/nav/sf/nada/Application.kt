@@ -35,7 +35,7 @@ class Application {
 
     val excludeTables = envAsList(config_EXCLUDE_TABLES)
 
-    var hasPostedToday = true // Assume posted today Use oneOff below if you want to post for certain dates at deploy
+    var hasPostedToday = false // Assume posted today Use oneOff below if you want to post for certain dates at deploy
 
     val bigQueryService: BigQuery =
         BigQueryOptions
@@ -73,7 +73,7 @@ class Application {
         log.info { "1 minutes graceful start - establishing connections" }
         Thread.sleep(60000)
 
-        /* // One offs (remember to remove after one run):
+        /* // One offs (remember to remove after one run), to run current day session (post yesterdays records) use work() or hasPostedToday = false:
         oneOff("2024-05-23")
         oneOff("2024-05-30")
         oneOff("2024-06-03")
