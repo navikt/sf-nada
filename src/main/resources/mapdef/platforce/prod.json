@@ -48,7 +48,8 @@
           "name": "lastLoginAt",
           "type": "DATETIME"
         }
-      }
+      },
+      "mergeKeys" : "navIdent,licenseName"
     },
     "active-feature-license-metric": {
       "query": "SELECT Id, ActiveUserCount,AssignedUserCount,FeatureType,MetricsDate,TotalLicenseCount FROM ActiveFeatureLicenseMetric",
@@ -238,7 +239,8 @@
           "type": "BOOLEAN"
         }
       },
-      "useForLastModifiedDate": "LastModifiedDate,LastLoginDate"
+      "useForLastModifiedDate": "LastModifiedDate,LastLoginDate",
+      "mergeKeys" : "navIdent"
     },
     "community-user-login": {
       "query": "SELECT Id, LoginTime, NetworkId, UserId FROM LoginHistory WHERE NetworkId != Null",

@@ -97,9 +97,10 @@ fun fetchAndSend(
     }
 
     if (tableId.isStaging()) {
+        val mergeKeys = application.mapDef[dataset]!![table]!!.mergeKeys
         mergeStagingIntoTargetWithRetry(
             tableId,
-            keys = listOf("navIdent", "licenseName"), // or add "licenseName"
+            keys = mergeKeys,
         )
     }
 }
@@ -326,15 +327,6 @@ fun mergeStagingIntoTargetWithRetry(
             val stats = job.getStatistics<JobStatistics.QueryStatistics>()
 
             log.info("Merge to ${staging.stagingTarget()} successful")
-
-            val statsInfo =
-                "Merge stats ${staging.stagingTarget()} : " +
-                    "bytesProcessed=${stats.totalBytesProcessed}, " +
-                    "slotMs=${stats.totalSlotMs}"
-
-            log.info(statsInfo)
-
-            File("/tmp/latestMergeSuccess").writeText(statsInfo)
 
             // Success
             return

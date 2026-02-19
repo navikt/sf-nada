@@ -15,6 +15,7 @@ data class TableDef(
     val fieldDefMap: MutableMap<String, FieldDef>,
     val useForLastModifiedDate: List<String> = listOf("LastModifiedDate"),
     val withoutTimePart: Boolean = false,
+    val mergeKeys: List<String> = listOf(),
 )
 
 fun parseMapDef(filePath: String): Map<String, Map<String, TableDef>> =
@@ -37,6 +38,12 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
                     ?.split(",")
                     ?.map { it.trim() } ?: listOf("LastModifiedDate")
             val withoutTimePart = objT.get("withoutTimePart")?.asBoolean ?: false
+            val mergeKeys =
+                objT
+                    .get("mergeKeys")
+                    ?.asString
+                    ?.split(",")
+                    ?.map { it.trim() } ?: listOf()
 
             result[dataSetEntry.key]!![tableEntry.key] =
                 TableDef(
@@ -44,6 +51,7 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
                     fieldDefMap = mutableMapOf(),
                     useForLastModifiedDate = useForLastModifiedDate,
                     withoutTimePart = withoutTimePart,
+                    mergeKeys = mergeKeys,
                 )
 
             objS.entrySet().forEach { fieldEntry ->

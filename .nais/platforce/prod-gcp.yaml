@@ -9,5 +9,5 @@ spec:
     - name: POST_TO_BIGQUERY
       value: 'true'
     - name: EXCLUDE_TABLES
-      value: 'active-feature-license,active-salesforce-user-v2'
+      value: 'active-feature-license,active-salesforce-user-v2,active-feature-license-metric,active-permset-license-metric'
 
