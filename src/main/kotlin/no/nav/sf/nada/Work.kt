@@ -272,13 +272,17 @@ fun mergeStagingIntoTargetWithRetry(
     val targetTable =
         application.bigQueryService.getTable(
             TableId.of(staging.project, staging.dataset, staging.stagingTarget()),
-            BigQuery.TableOption.fields(BigQuery.TableField.SCHEMA),
-            BigQuery.TableOption.fields(BigQuery.TableField.NUM_ROWS),
+            BigQuery.TableOption.fields(
+                BigQuery.TableField.SCHEMA,
+                BigQuery.TableField.NUM_ROWS,
+            ),
         ) ?: throw RuntimeException("Target table not found")
 
     val definition = targetTable.getDefinition<TableDefinition>() as StandardTableDefinition
 
     val numRowsBefore = definition.numRows!!
+    log.info("State of ${targetTable.tableId} before merge, numRows: $numRowsBefore")
+
     val columns = definition.schema!!.fields.map { it.name }
 
     // Exclude the merge keys from the update list (optional)
