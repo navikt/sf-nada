@@ -281,7 +281,7 @@ fun mergeStagingIntoTargetWithRetry(
     val definition = targetTable.getDefinition<TableDefinition>() as StandardTableDefinition
 
     val numRowsBefore = definition.numRows!!
-    log.info("State of ${targetTable.tableId} before merge, numRows: $numRowsBefore")
+    log.info("State of ${targetTable.tableId.table} before merge, numRows: $numRowsBefore")
 
     val columns = definition.schema!!.fields.map { it.name }
 
@@ -330,8 +330,7 @@ fun mergeStagingIntoTargetWithRetry(
             val statsInfo =
                 "Merge stats ${staging.stagingTarget()} : " +
                     "bytesProcessed=${stats.totalBytesProcessed}, " +
-                    "slotMs=${stats.totalSlotMs}, " +
-                    "durationMs=${stats.endTime - stats.startTime}"
+                    "slotMs=${stats.totalSlotMs}"
 
             log.info(statsInfo)
 
