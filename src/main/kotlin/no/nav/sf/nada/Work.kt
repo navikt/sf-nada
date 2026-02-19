@@ -326,7 +326,7 @@ fun mergeStagingIntoTargetWithRetry(
 
             val stats = job.getStatistics<JobStatistics.QueryStatistics>()
 
-            log.info("Merge to ${staging.stagingTarget()} successful")
+            log.info("Merge to ${staging.stagingTarget()} on unique keys $keys successful")
 
             // Success
             return

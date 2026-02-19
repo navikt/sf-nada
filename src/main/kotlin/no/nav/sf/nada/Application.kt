@@ -20,7 +20,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 private val resetRangeStart = LocalTime.parse("00:00:01")
-private val resetRangeStop = LocalTime.parse("01:59:00")
+private val resetRangeStop = LocalTime.parse("01:29:00")
 
 private val log = KotlinLogging.logger { }
 
@@ -35,7 +35,7 @@ class Application {
 
     val excludeTables = envAsList(config_EXCLUDE_TABLES)
 
-    var hasPostedToday = false // Assume posted today Use oneOff below if you want to post for certain dates at deploy
+    var hasPostedToday = true // Assume posted today Use oneOff below if you want to post for certain dates at deploy
 
     val bigQueryService: BigQuery =
         BigQueryOptions

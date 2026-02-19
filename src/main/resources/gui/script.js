@@ -133,13 +133,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     queryDiv.textContent = table.salesforceQuery;
                     tableDetails.appendChild(queryDiv);
 
-                    if (table.useForLastModifiedDate !== "LastModifiedDate" || table.withoutTimePart == true) {
+                    if (table.useForLastModifiedDate !== "LastModifiedDate" || table.withoutTimePart === true || table.mergeKeys !== "") {
                         lastModifiedFieldDiv = document.createElement("div");
                         lastModifiedFieldDiv.classList.add("salesforce-query");
                         lastModifiedFieldDiv.classList.add("last-modified-field");
                         lastModifiedFieldDiv.textContent = table.useForLastModifiedDate + " used instead of LastModifiedDate";
                         if (table.withoutTimePart === true) {
                             lastModifiedFieldDiv.textContent += " (without time part)";
+                        }
+                        if (table.mergeKeys !== "") {
+                            lastModifiedFieldDiv.textContent += " Merge keys: " + table.mergeKeys;
                         }
                         tableDetails.appendChild(lastModifiedFieldDiv);
                     }

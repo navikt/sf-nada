@@ -146,6 +146,7 @@ object Gui {
         val salesforceQuery: String? = null,
         val useForLastModifiedDate: String = "LastModifiedDate",
         val withoutTimePart: Boolean = false,
+        val mergeKeys: String = "",
         val active: Boolean = true,
         val operationInfo: OperationInfo,
     )
@@ -195,6 +196,8 @@ object Gui {
 
                     val withoutTimePart =
                         mapDef[datasetName]?.get(tableName)?.withoutTimePart ?: false
+
+                    val mergeKeys = mapDef[datasetName]?.get(tableName)?.mergeKeys ?: listOf()
 
                     val selectFields = extractFields(tableQuery)
 
@@ -290,6 +293,7 @@ object Gui {
                             salesforceQuery = tableQuery,
                             useForLastModifiedDate = useForLastModifiedDate.joinToString(","),
                             withoutTimePart = withoutTimePart,
+                            mergeKeys = mergeKeys.joinToString(","),
                             active = application.postToBigQuery && !(application.excludeTables.any { it == tableName }),
                             operationInfo = BulkOperation.operationInfo[datasetName]?.get(tableName) ?: OperationInfo(),
                         )
