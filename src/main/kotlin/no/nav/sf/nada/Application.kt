@@ -77,13 +77,16 @@ class Application {
 
         val query =
             "SELECT " +
-                "  UserId," +
-                "  DATE(LoginTime) AS login_date," +
-                "  COUNT(DISTINCT NetworkId) AS networks_used " +
+                "  UserId, " +
+                "  DAY_ONLY(LoginTime), " +
+                "  COUNT_DISTINCT(NetworkId) " +
                 "FROM LoginHistory " +
-                "WHERE LoginTime = LAST_N_DAYS:7 " +
-                "GROUP BY UserId, DATE(LoginTime) " +
-                "HAVING COUNT(DISTINCT NetworkId) > 1"
+                "WHERE NetworkId != NULL " +
+                "  AND LoginTime = LAST_N_DAYS:7 " +
+                "GROUP BY " +
+                "  UserId, " +
+                "  DAY_ONLY(LoginTime) " +
+                "HAVING COUNT_DISTINCT(NetworkId) > 1"
         val result = doSFQuery(query)
         File("/tmp/resultOfInvestigate").writeText(result.toMessage())
 
