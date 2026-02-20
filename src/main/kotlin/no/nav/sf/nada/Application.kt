@@ -78,8 +78,8 @@ class Application {
         val query1 =
             "SELECT " +
                 "    NetworkId, " +
-                "    COUNT_DISTINCT(UserId) AS unique_users, " +
-                "    COUNT(Id) AS total_logins " +
+                "    COUNT_DISTINCT(UserId), " +
+                "    COUNT(Id) " +
                 "FROM LoginHistory " +
                 "WHERE NetworkId != NULL " +
                 "  AND DAY_ONLY(LoginTime) = 2026-02-18 " +
@@ -87,8 +87,8 @@ class Application {
 
         val query2 =
             "SELECT " +
-                "    COUNT_DISTINCT(UserId) AS unique_users, " +
-                "    COUNT(Id) AS total_logins " +
+                "    COUNT_DISTINCT(UserId), " +
+                "    COUNT(Id) " +
                 "FROM LoginHistory " +
                 "WHERE NetworkId != NULL " +
                 "  AND DAY_ONLY(LoginTime) = 2026-02-18"
@@ -96,8 +96,8 @@ class Application {
         val query3 =
             "SELECT " +
                 "    NetworkId, " +
-                "    HOUR_IN_DAY(LoginTime) AS login_hour, " +
-                "    COUNT(Id) AS total_logins " +
+                "    HOUR_IN_DAY(LoginTime), " +
+                "    COUNT(Id) " +
                 "FROM LoginHistory " +
                 "WHERE NetworkId != NULL " +
                 "  AND DAY_ONLY(LoginTime) = 2026-02-18 " +
