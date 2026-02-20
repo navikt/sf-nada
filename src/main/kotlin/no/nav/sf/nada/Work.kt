@@ -16,6 +16,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
 import mu.KotlinLogging
+import no.nav.sf.nada.HttpCalls.doCallWithSFToken
 import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.bulk.BulkOperation
 import no.nav.sf.nada.token.AccessTokenHandler
@@ -58,7 +59,7 @@ fun fetchAndSend(
     val tableId = TableId.of(application.projectId, dataset, table)
 
     Metrics.fetchRequest.inc()
-    var response = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.urlEncoded()}")
+    var response = doSFQuery(query)
 
     if (response.status.code == 400) {
         Metrics.productsQueryFailed.labels(table).inc()
@@ -86,7 +87,7 @@ fun fetchAndSend(
         var records = obj["records"].asJsonArray
         remapAndSendRecords(records, tableId, fieldDef)
         while (!done) {
-            response = doSFQuery("${AccessTokenHandler.instanceUrl}$nextRecordsUrl")
+            response = doCallWithSFToken("${AccessTokenHandler.instanceUrl}$nextRecordsUrl")
             obj = JsonParser.parseString(response.bodyString()) as JsonObject
             done = obj["done"].asBoolean
             nextRecordsUrl = obj["nextRecordsUrl"]?.asString

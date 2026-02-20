@@ -7,6 +7,7 @@ import com.google.cloud.bigquery.TableDefinition
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import mu.KotlinLogging
+import no.nav.sf.nada.HttpCalls.doCallWithSFToken
 import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.Metrics
 import no.nav.sf.nada.TableDef
@@ -55,7 +56,8 @@ object Gui {
         var yesterday = 0
         var last5 = 0
 
-        val responseDate = doSFQuery("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${queryYesterday.urlEncoded()}")
+        val responseDate = doSFQuery(queryYesterday)
+
         File("/tmp/responseAtDateCall").writeText(responseDate.toMessage())
         if (responseDate.status.code == 400) {
             result += "\nBad request: " + responseDate.bodyString()
@@ -78,13 +80,8 @@ object Gui {
 
         result += "<br>"
 
-        val responseTotal =
-            doSFQuery(
-                "${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimitOnlyOneDateField(
-                    5,
-                    useForLastModifiedDate,
-                ).urlEncoded()}",
-            )
+        val responseTotal = doSFQuery(query.addHistoryLimitOnlyOneDateField(5, useForLastModifiedDate))
+
         File("/tmp/responseLast5Call").writeText(
             "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimitOnlyOneDateField(
                 5,

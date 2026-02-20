@@ -7,15 +7,15 @@ import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.urlEncoded
 import java.io.File
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 
 object HttpCalls {
     private val client = lazy { OkHttp() }
 
-    fun doSFQuery(query: String): Response {
+    fun doSFQuery(query: String) = doCallWithSFToken("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.urlEncoded()}")
+
+    fun doCallWithSFToken(uri: String): Response {
         val request =
-            Request(Method.GET, query)
+            Request(Method.GET, uri)
                 .header("Authorization", "Bearer ${AccessTokenHandler.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
         File("/tmp/queryToHappen").writeText(request.toMessage())

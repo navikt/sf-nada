@@ -3,6 +3,7 @@ package no.nav.sf.nada
 import com.google.cloud.bigquery.BigQuery
 import com.google.cloud.bigquery.BigQueryOptions
 import mu.KotlinLogging
+import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.bulk.BulkOperation
 import no.nav.sf.nada.gui.Gui
 import org.http4k.core.HttpHandler
@@ -15,6 +16,7 @@ import org.http4k.routing.routes
 import org.http4k.routing.static
 import org.http4k.server.Netty
 import org.http4k.server.asServer
+import java.io.File
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -73,6 +75,18 @@ class Application {
         log.info { "1 minutes graceful start - establishing connections" }
         Thread.sleep(60000)
 
+        val query =
+            "SELECT " +
+                "  UserId," +
+                "  DATE(LoginTime) AS login_date," +
+                "  COUNT(DISTINCT NetworkId) AS networks_used " +
+                "FROM LoginHistory " +
+                "WHERE LoginTime = LAST_N_DAYS:7 " +
+                "GROUP BY UserId, DATE(LoginTime) " +
+                "HAVING COUNT(DISTINCT NetworkId) > 1"
+        val result = doSFQuery(query)
+        File("/tmp/resultOfInvestigate").writeText(result.toMessage())
+
         /* // One offs (remember to remove after one run), to run current day session (post yesterdays records) use work() or hasPostedToday = false:
         oneOff("2024-05-23")
         oneOff("2024-05-30")
@@ -80,7 +94,6 @@ class Application {
         oneOff("2024-06-07")
         oneOff("2024-06-10")
         oneOff("2024-06-13")
-
         // fetchAndSend(LocalDate.now().minusDays(1), dataset, table) - use this to only do for one specific table (try out on a -staging table to test merge for example)
          */
 
