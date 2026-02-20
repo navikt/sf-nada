@@ -242,7 +242,7 @@
       "useForLastModifiedDate": "LastModifiedDate,LastLoginDate",
       "mergeKeys" : "navIdent"
     },
-    "community-user-login": {
+    "community-user-login-v2": {
       "query": "SELECT Id, LoginTime, NetworkId, UserId FROM LoginHistory WHERE NetworkId != Null",
       "schema": {
         "Id": {

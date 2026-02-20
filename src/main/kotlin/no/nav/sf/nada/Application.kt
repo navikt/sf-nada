@@ -75,43 +75,20 @@ class Application {
         log.info { "1 minutes graceful start - establishing connections" }
         Thread.sleep(60000)
 
-        val query1 =
-            "SELECT " +
-                "    NetworkId, " +
-                "    COUNT_DISTINCT(UserId), " +
-                "    COUNT(Id) " +
-                "FROM LoginHistory " +
-                "WHERE NetworkId != NULL " +
-                "  AND DAY_ONLY(LoginTime) = 2026-02-18 " +
-                "GROUP BY NetworkId"
-
-        val query2 =
-            "SELECT " +
-                "    COUNT_DISTINCT(UserId), " +
-                "    COUNT(Id) " +
-                "FROM LoginHistory " +
-                "WHERE NetworkId != NULL " +
-                "  AND DAY_ONLY(LoginTime) = 2026-02-18"
-
-        val query3 =
-            "SELECT " +
-                "    NetworkId, " +
-                "    HOUR_IN_DAY(LoginTime), " +
-                "    COUNT(Id) " +
-                "FROM LoginHistory " +
-                "WHERE NetworkId != NULL " +
-                "  AND DAY_ONLY(LoginTime) = 2026-02-18 " +
-                "GROUP BY " +
-                "    NetworkId, " +
-                "    HOUR_IN_DAY(LoginTime)"
-
-        val result = doSFQuery(query1)
-        val result2 = doSFQuery(query2)
-        val result3 = doSFQuery(query3)
-
-        File("/tmp/resultOfInvestigate1").writeText(result.toMessage())
-        File("/tmp/resultOfInvestigate2").writeText(result2.toMessage())
-        File("/tmp/resultOfInvestigate3").writeText(result3.toMessage())
+//        val query3 =
+//            "SELECT " +
+//                "    NetworkId, " +
+//                "    HOUR_IN_DAY(LoginTime), " +
+//                "    COUNT(Id) " +
+//                "FROM LoginHistory " +
+//                "WHERE NetworkId != NULL " +
+//                "  AND DAY_ONLY(LoginTime) = 2026-02-18 " +
+//                "GROUP BY " +
+//                "    NetworkId, " +
+//                "    HOUR_IN_DAY(LoginTime)"
+//
+//        val result3 = doSFQuery(query3)
+        // File("/tmp/resultOfInvestigate3").writeText(result3.toMessage())
 
         /* // One offs (remember to remove after one run), to run current day session (post yesterdays records) use work() or hasPostedToday = false:
         oneOff("2024-05-23")
