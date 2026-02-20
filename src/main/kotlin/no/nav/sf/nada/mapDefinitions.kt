@@ -4,6 +4,9 @@ package no.nav.sf.nada
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import mu.KotlinLogging
+
+private val log = KotlinLogging.logger { }
 
 data class FieldDef(
     val name: String,
@@ -58,7 +61,50 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
                 val fieldDef = gson.fromJson(fieldEntry.value, FieldDef::class.java)
                 result[dataSetEntry.key]!![tableEntry.key]!!.fieldDefMap[fieldEntry.key] = fieldDef
             }
+
+            deriveWithoutTimePart(tableEntry.key, useForLastModifiedDate, result[dataSetEntry.key]!![tableEntry.key]!!.fieldDefMap)
         }
     }
     return result
+}
+
+fun deriveWithoutTimePart(
+    table: String,
+    useForLastModifiedDate: List<String>,
+    fieldDefMap: MutableMap<String, FieldDef>,
+): Boolean {
+    var result = "Derive withoutTimePart for $table: "
+    var dateTime = false
+    var date = false
+    useForLastModifiedDate.forEach {
+        if (it == "LastModifiedDate") {
+            result += "LastModifiedDate means dateTime "
+            dateTime = true
+        } else {
+            if (fieldDefMap.containsKey(it)) {
+                if (fieldDefMap[it]!!.type == SupportedType.DATETIME) {
+                    result += "$it - is dateTime "
+                    dateTime = true
+                } else if (fieldDefMap[it]!!.type == SupportedType.DATE) {
+                    result += "$it - is date "
+                    date = true
+                } else {
+                    result += "$it - is ${fieldDefMap[it]!!.type.name} NOT SUPPORTED "
+                }
+            } else {
+                result += "$it - unknown time field!, guessing dateTime WARNING "
+                dateTime = true
+            }
+        }
+    }
+    if (date && !dateTime) {
+        result += " RESULT: withoutTimePart TRUE"
+    } else if (dateTime && !date) {
+        result += " RESULT: withoutTimePart FALSE"
+    } else {
+        result += " RESULT: CONFLICT!"
+    }
+    log.info(result)
+
+    return (date && !dateTime)
 }

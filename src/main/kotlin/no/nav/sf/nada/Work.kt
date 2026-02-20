@@ -104,6 +104,14 @@ fun fetchAndSend(
             keys = mergeKeys,
         )
     }
+
+    if (tableId.table == "community-user-login-v2" && targetDate != null) {
+        log.info(
+            "Post streaming raw data for community-user-login-v2 ($totalSize records), will attempt inserting into daily and hourly aggregate tables",
+        )
+        makeDailyAggregate(targetDate)
+        makeHourlyAggregate(targetDate)
+    }
 }
 
 fun Response.parsedRecordsCount(): Int {
@@ -345,4 +353,82 @@ fun mergeStagingIntoTargetWithRetry(
     }
 
     throw RuntimeException("Merge failed after $maxRetries retries due to streaming buffer")
+}
+
+fun makeDailyAggregate(targetDate: LocalDate) {
+    val bigQuery = application.bigQueryService
+
+    // Format date for BigQuery
+    val dateStr = targetDate.toString() // e.g., "2026-02-18"
+
+    // Daily aggregation query with "ALL" network row
+    val query =
+        """
+        INSERT INTO `platforce-prod-296b.license.community-user-login-daily` (date, networkId, logins, uniqueUsers)
+        WITH per_network AS (
+            SELECT
+                DATE(loginAt) AS date,
+                networkId,
+                COUNT(id) AS logins,
+                COUNT(DISTINCT userId) AS uniqueUsers
+            FROM `platforce-prod-296b.license.community-user-login-v2`
+            WHERE DATE(loginAt) = '$dateStr'
+            GROUP BY networkId, DATE(loginAt)
+        ),
+        all_network AS (
+            SELECT
+                DATE(loginAt) AS date,
+                'ALL' AS networkId,
+                COUNT(id) AS logins,
+                COUNT(DISTINCT userId) AS uniqueUsers
+            FROM `platforce-prod-296b.license.community-user-login-v2`
+            WHERE DATE(loginAt) = '$dateStr'
+            GROUP BY DATE(loginAt)
+        )
+        SELECT * FROM per_network
+        UNION ALL
+        SELECT * FROM all_network
+        """.trimIndent()
+
+    val job =
+        bigQuery.create(
+            JobInfo.of(QueryJobConfiguration.newBuilder(query).build()),
+        )
+    job.waitFor()
+
+    if (job.status.error != null) {
+        throw RuntimeException("Daily aggregate failed: ${job.status.error}")
+    }
+    log.info("Daily aggregate successful")
+}
+
+fun makeHourlyAggregate(targetDate: LocalDate) {
+    val bigQuery = application.bigQueryService
+
+    val dateStr = targetDate.toString()
+
+    // Hourly aggregation query (login count per network per hour)
+    val query =
+        """
+        INSERT INTO `platforce-prod-296b.license.community-user-login-hourly` (date, networkId, loginHour, logins)
+        SELECT
+            DATE(loginAt) AS date,
+            networkId,
+            EXTRACT(HOUR FROM loginAt) AS loginHour,
+            COUNT(id) AS logins
+        FROM `platforce-prod-296b.license.community-user-login-v2`
+        WHERE DATE(loginAt) = '$dateStr'
+        GROUP BY networkId, DATE(loginAt), loginHour
+        """.trimIndent()
+
+    val job =
+        bigQuery.create(
+            JobInfo.of(QueryJobConfiguration.newBuilder(query).build()),
+        )
+    job.waitFor()
+
+    if (job.status.error != null) {
+        throw RuntimeException("Hourly aggregate failed: ${job.status.error}")
+    }
+    log.info("Hourly aggregate successful")
 }
