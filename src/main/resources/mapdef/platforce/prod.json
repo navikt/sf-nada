@@ -79,8 +79,7 @@
           "type": "INTEGER"
         }
       },
-      "useForLastModifiedDate": "MetricsDate",
-      "withoutTimePart": "true"
+      "useForLastModifiedDate": "MetricsDate"
     },
     "active-permset-license-metric": {
       "query": "SELECT Id, ActiveUserCount,AssignedUserCount,DeveloperName, PermissionSetLicense.MasterLabel,TotalLicenses, MetricsDate FROM ActivePermSetLicenseMetric",
@@ -114,8 +113,7 @@
           "type": "DATE"
         }
       },
-      "useForLastModifiedDate": "MetricsDate",
-      "withoutTimePart": "true"
+      "useForLastModifiedDate": "MetricsDate"
     },
     "active-salesforce-user-v2": {
       "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND CRM_NAV_Ident__c != null",

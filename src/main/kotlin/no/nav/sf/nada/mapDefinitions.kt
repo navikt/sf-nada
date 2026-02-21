@@ -40,7 +40,7 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
                     ?.asString
                     ?.split(",")
                     ?.map { it.trim() } ?: listOf("LastModifiedDate")
-            val withoutTimePart = objT.get("withoutTimePart")?.asBoolean ?: false
+            // val withoutTimePart = objT.get("withoutTimePart")?.asBoolean ?: false
             val mergeKeys =
                 objT
                     .get("mergeKeys")
@@ -48,21 +48,23 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
                     ?.split(",")
                     ?.map { it.trim() } ?: listOf()
 
+            val fieldDefMap: MutableMap<String, FieldDef> = mutableMapOf()
+
+            objS.entrySet().forEach { fieldEntry ->
+                val fieldDef = gson.fromJson(fieldEntry.value, FieldDef::class.java)
+                fieldDefMap[fieldEntry.key] = fieldDef
+            }
+
+            val withoutTimePart = deriveWithoutTimePart(tableEntry.key, useForLastModifiedDate, fieldDefMap)
+
             result[dataSetEntry.key]!![tableEntry.key] =
                 TableDef(
                     query = query,
-                    fieldDefMap = mutableMapOf(),
+                    fieldDefMap = fieldDefMap,
                     useForLastModifiedDate = useForLastModifiedDate,
                     withoutTimePart = withoutTimePart,
                     mergeKeys = mergeKeys,
                 )
-
-            objS.entrySet().forEach { fieldEntry ->
-                val fieldDef = gson.fromJson(fieldEntry.value, FieldDef::class.java)
-                result[dataSetEntry.key]!![tableEntry.key]!!.fieldDefMap[fieldEntry.key] = fieldDef
-            }
-
-            deriveWithoutTimePart(tableEntry.key, useForLastModifiedDate, result[dataSetEntry.key]!![tableEntry.key]!!.fieldDefMap)
         }
     }
     return result

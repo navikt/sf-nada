@@ -410,15 +410,15 @@ fun makeHourlyAggregate(targetDate: LocalDate) {
     // Hourly aggregation query (login count per network per hour)
     val query =
         """
-        INSERT INTO `platforce-prod-296b.license.community-user-login-hourly` (date, networkId, loginHour, logins)
+        INSERT INTO `platforce-prod-296b.license.community-user-login-hourly` (date, networkId, hour, logins)
         SELECT
             DATE(loginAt) AS date,
             networkId,
-            EXTRACT(HOUR FROM loginAt) AS loginHour,
+            EXTRACT(HOUR FROM loginAt) AS hour,
             COUNT(id) AS logins
         FROM `platforce-prod-296b.license.community-user-login-v2`
         WHERE DATE(loginAt) = '$dateStr'
-        GROUP BY networkId, DATE(loginAt), loginHour
+        GROUP BY networkId, DATE(loginAt), hour
         """.trimIndent()
 
     val job =
