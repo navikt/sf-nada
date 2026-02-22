@@ -419,6 +419,17 @@ fun makeHourlyAggregate(targetDate: LocalDate) {
         FROM `platforce-prod-296b.license.community-user-login-v2`
         WHERE DATE(loginAt) = '$dateStr'
         GROUP BY networkId, DATE(loginAt), hour
+        
+        UNION ALL
+        
+        SELECT
+            DATE(loginAt) AS date,
+            'ALL' AS networkId,
+            EXTRACT(HOUR FROM loginAt) AS hour,
+            COUNT(id) AS logins
+        FROM `platforce-prod-296b.license.community-user-login-v2`
+        WHERE DATE(loginAt) = '$dateStr'
+        GROUP BY DATE(loginAt), hour
         """.trimIndent()
 
     val job =
