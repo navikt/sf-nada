@@ -192,6 +192,7 @@ object Gui {
                     if (!tableName.endsWith("-staging") &&
                         tableNames.contains("$tableName-staging")
                     ) {
+                        log.info("$tableName has a staging conterpart - should ignore")
                         continue
                     }
 
