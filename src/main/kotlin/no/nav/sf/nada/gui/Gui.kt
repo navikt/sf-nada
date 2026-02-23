@@ -166,6 +166,10 @@ object Gui {
 
             // List tables in the dataset
             val tables = application.bigQueryService.listTables(datasetName).iterateAll()
+
+            // Build a set of all table names for quick lookup
+            val tableNames = tables.map { it.tableId.table }.toSet()
+
             for (table in tables) {
                 val fullTable: Table
                 try {
@@ -183,6 +187,13 @@ object Gui {
                 // Skip tables that are not standard definitions (like views)
                 if (definition is StandardTableDefinition) {
                     val tableName = table.tableId.table
+
+                    // Skip base table if a staging version exists
+                    if (!tableName.endsWith("-staging") &&
+                        tableNames.contains("$tableName-staging")
+                    ) {
+                        continue
+                    }
 
                     val tableQuery =
                         mapDef[datasetName]?.get(tableName)?.query?.replace("+", " ")
