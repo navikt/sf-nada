@@ -79,6 +79,16 @@ body {
     font-size: 13px;
 }
 
+.merge-label {
+    font-family: Arial, sans-serif;
+    background-color: #cfead6; /* different background */
+    color: #1f7a4d;            /* different text color */
+    padding: 4px 5px;
+    border-radius: 5px;
+    margin-left: 10px; /* same spacing */
+    font-size: 13px;
+}
+
 .inactive-label:hover {
     color: #6c703b;
 }

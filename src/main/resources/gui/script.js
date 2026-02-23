@@ -96,16 +96,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 const tableNameDiv = document.createElement("div");
                 tableNameDiv.textContent = table.tableName;
 
-                // Create the 'inactive' label div
-                const inactiveLabel = document.createElement("div");
-                inactiveLabel.textContent = 'INACTIVE';
-                inactiveLabel.classList.add('inactive-label');
-                inactiveLabel.title = "No records will be transferred to Big Query in daily job or bulk transfer job";
-
                 // Append the table name and inactive label into the wrapper
                 nameAndLabelWrapper.appendChild(tableNameDiv);
+
                 if (!table.active) {
+                    // Create the 'inactive' label div
+                    const inactiveLabel = document.createElement("div");
+                    inactiveLabel.textContent = 'INACTIVE';
+                    inactiveLabel.classList.add('inactive-label');
+                    inactiveLabel.title = "No records will be transferred to Big Query in daily job or bulk transfer job";
                     nameAndLabelWrapper.appendChild(inactiveLabel);
+                }
+
+                if (table.tableName?.endsWith("-staging")) {
+                    const mergeLabel = document.createElement("div");
+                    mergeLabel.textContent = 'MERGE';
+                    mergeLabel.classList.add('merge-label'); // create CSS similar to inactive-label
+                    mergeLabel.title = "This table will be merged into the base table during processing";
+                    nameAndLabelWrapper.appendChild(mergeLabel);
                 }
 
                 // Create a separate div for the row count
@@ -139,10 +147,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         lastModifiedFieldDiv.classList.add("last-modified-field");
                         lastModifiedFieldDiv.textContent = table.useForLastModifiedDate + " used instead of LastModifiedDate";
                         if (table.withoutTimePart === true) {
-                            lastModifiedFieldDiv.textContent += " (without time part)";
+                            lastModifiedFieldDiv.textContent += " (only date)";
                         }
                         if (table.mergeKeys !== "") {
-                            lastModifiedFieldDiv.textContent += " Merge keys: " + table.mergeKeys;
+                            lastModifiedFieldDiv.textContent += " (Merge keys: " + table.mergeKeys + ")";
                         }
                         tableDetails.appendChild(lastModifiedFieldDiv);
                     }

@@ -1,30 +1,5 @@
 {
   "license": {
-    "active-feature-license": {
-      "query": "SELECT Id, Assignee.CRM_NAV_Ident__c, PermissionSetLicense.MasterLabel, Assignee.Profile.UserLicense.Name, Assignee.LastLoginDate FROM PermissionSetLicenseAssign WHERE Assignee.IsActive = true AND Assignee.Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND Assignee.CRM_NAV_Ident__c != null",
-      "schema": {
-        "Id": {
-          "name": "id",
-          "type": "STRING"
-        },
-        "Assignee.CRM_NAV_Ident__c": {
-          "name": "navIdent",
-          "type": "STRING"
-        },
-        "PermissionSetLicense.MasterLabel": {
-          "name": "licenseName",
-          "type": "STRING"
-        },
-        "Assignee.Profile.UserLicense.Name": {
-          "name": "userLicenseType",
-          "type": "STRING"
-        },
-        "Assignee.LastLoginDate": {
-          "name": "lastLoginAt",
-          "type": "DATETIME"
-        }
-      }
-    },
     "active-feature-license-staging": {
       "query": "SELECT Id, Assignee.CRM_NAV_Ident__c, PermissionSetLicense.MasterLabel, Assignee.Profile.UserLicense.Name, Assignee.LastLoginDate FROM PermissionSetLicenseAssign WHERE Assignee.IsActive = true AND Assignee.Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND Assignee.CRM_NAV_Ident__c != null",
       "schema": {
@@ -114,68 +89,6 @@
         }
       },
       "useForLastModifiedDate": "MetricsDate"
-    },
-    "active-salesforce-user-v2": {
-      "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND CRM_NAV_Ident__c != null",
-      "schema": {
-        "Id": {
-          "name": "id",
-          "type": "STRING"
-        },
-        "CRM_NAV_Ident__c": {
-          "name": "navIdent",
-          "type": "STRING"
-        },
-        "LastLoginDate": {
-          "name": "lastLoginAt",
-          "type": "DATETIME"
-        },
-        "Profile.Name": {
-          "name": "profileName",
-          "type": "STRING"
-        },
-        "Profile.UserLicense.Name": {
-          "name": "userLicenseType",
-          "type": "STRING"
-        },
-        "UserPermissionsAvantgoUser": {
-          "name": "avantgoUser",
-          "type": "BOOLEAN"
-        },
-        "UserPermissionsCallCenterAutoLogin": {
-          "name": "callCenterAutoLogin",
-          "type": "BOOLEAN"
-        },
-        "UserPermissionsInteractionUser": {
-          "name": "interactionUser",
-          "type": "BOOLEAN"
-        },
-        "UserPermissionsKnowledgeUser": {
-          "name": "knowledgeUser",
-          "type": "BOOLEAN"
-        },
-        "UserPermissionsLiveAgentUser": {
-          "name": "liveAgentUser",
-          "type": "BOOLEAN"
-        },
-        "UserPermissionsMarketingUser": {
-          "name": "marketingUser",
-          "type": "BOOLEAN"
-        },
-        "UserPermissionsOfflineUser": {
-          "name": "offlineUser",
-          "type": "BOOLEAN"
-        },
-        "UserPermissionsSFContentUser": {
-          "name": "sfContentUser",
-          "type": "BOOLEAN"
-        },
-        "UserPermissionsSupportUser": {
-          "name": "supportUser",
-          "type": "BOOLEAN"
-        }
-      },
-      "useForLastModifiedDate": "LastModifiedDate,LastLoginDate"
     },
     "active-salesforce-user-v2-staging": {
       "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND CRM_NAV_Ident__c != null",
