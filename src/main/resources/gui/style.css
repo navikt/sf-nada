@@ -176,7 +176,8 @@ body {
 
 .last-modified-field {
     padding: 6px 10px;
-    border: 1px solid #c7d6f9;
+    /* border: 1px solid #c7d6f9; */
+    border: 2px solid #c7d6f9;
     font-family: monospace;
     font-size: 12px;
     background-color: #ffffff;

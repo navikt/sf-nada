@@ -149,19 +149,27 @@ document.addEventListener("DOMContentLoaded", function () {
                     queryDiv.textContent = table.salesforceQuery;
                     tableDetails.appendChild(queryDiv);
 
-                    if (table.timeSliceFields !== "(LastModifiedDate, DATETIME)" || table.mergeKeys !== "" || table.aggregateSource !== "") {
+                    if (table.timeSliceFields !== "(LastModifiedDate, DATETIME)") {
                         lastModifiedFieldDiv = document.createElement("div");
                         lastModifiedFieldDiv.classList.add("salesforce-query");
                         lastModifiedFieldDiv.classList.add("last-modified-field");
-                        if (table.timeSliceFields !== "(LastModifiedDate, DATETIME)") {
-                            lastModifiedFieldDiv.textContent = table.timeSliceFields + " used instead of LastModifiedDate";
-                        }
-                        if (table.mergeKeys !== "") {
-                            lastModifiedFieldDiv.textContent += " (Merge keys: " + table.mergeKeys + ")";
-                        }
-                        if (table.aggregateSource !== "") {
-                            lastModifiedFieldDiv.textContent += "Aggregate source table: " + table.aggregateSource;
-                        }
+                        lastModifiedFieldDiv.textContent = table.timeSliceFields + " used instead of (LastModifiedDate, DATETIME)";
+                        tableDetails.appendChild(lastModifiedFieldDiv);
+                    }
+
+                    if (table.mergeKeys !== "") {
+                        lastModifiedFieldDiv = document.createElement("div");
+                        lastModifiedFieldDiv.classList.add("salesforce-query");
+                        lastModifiedFieldDiv.classList.add("last-modified-field");
+                        lastModifiedFieldDiv.textContent += "Merge keys: " + table.mergeKeys;
+                        tableDetails.appendChild(lastModifiedFieldDiv);
+                    }
+
+                    if (table.aggregateSource !== "") {
+                        lastModifiedFieldDiv = document.createElement("div");
+                        lastModifiedFieldDiv.classList.add("salesforce-query");
+                        lastModifiedFieldDiv.classList.add("last-modified-field");
+                        lastModifiedFieldDiv.textContent += "Source table: " + table.aggregateSource;
                         tableDetails.appendChild(lastModifiedFieldDiv);
                     }
 
