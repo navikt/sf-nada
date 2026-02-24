@@ -149,7 +149,7 @@ object BulkOperation {
     ) {
         val currentOperationInfo = operationInfo[dataset]!![table]!!
         log.info { "Starting bulk transfer from batch job ${currentOperationInfo.jobId} to $dataset $table" }
-        val fieldDef = application.mapDef[dataset]!![table]!!.fieldDefMap
+        val schema = application.mapDef[dataset]!![table]!!.schema
         val tableId = TableId.of(application.projectId, dataset, table)
         var locator: String? = null
 
@@ -161,7 +161,7 @@ object BulkOperation {
             val totalCount = arrays.sumOf { it.size() }
             arrays.forEachIndexed { index, array ->
                 try {
-                    remapAndSendRecords(array, tableId, fieldDef)
+                    remapAndSendRecords(array, tableId, schema)
                     currentOperationInfo.processedRecords += array.size()
                     val reportRow = "Processed ${array.size()} records (${index + 1}/$fragmentsSize of current batch)"
                     log.info { reportRow }

@@ -25,7 +25,7 @@ public class RecordTranslateTest {
     @Test
     fun test_translation_of_object_missing_element() {
         val recordObj = JsonParser.parseString(RecordTranslateTest::class.java.getResource(RECORD_MOETER_MISSING).readText()) as JsonObject
-        val fieldDefMap = mapDefProd["arbeidsgiver_aktivitet"]!!["arbeidsgiver_moeter"]!!.fieldDefMap
+        val schema = mapDefProd["arbeidsgiver_aktivitet"]!!["arbeidsgiver_moeter"]!!.schema
 
         // println(recordObj.toRowMap(fieldDefMap))
         // println("Expected field $missingFieldNames missing in record, total sum ($missingFieldWarning)")

@@ -15,9 +15,10 @@ data class FieldDef(
 
 data class TableDef(
     val query: String,
-    val fieldDefMap: MutableMap<String, FieldDef>,
-    val useForLastModifiedDate: List<Pair<String, SupportedType>> = listOf(Pair("LastModifiedDate", SupportedType.DATETIME)),
+    val schema: MutableMap<String, FieldDef>,
+    val timeSliceFields: List<Pair<String, SupportedType>> = listOf(Pair("LastModifiedDate", SupportedType.DATETIME)),
     val mergeKeys: List<String> = listOf(),
+    val aggregateSource: String? = null,
 )
 
 fun parseMapDef(filePath: String): Map<String, Map<String, TableDef>> =
@@ -41,28 +42,31 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
                     ?.split(",")
                     ?.map { it.trim() } ?: listOf()
 
-            val fieldDefMap: MutableMap<String, FieldDef> = mutableMapOf()
+            val aggregateSource = objT["aggregateSource"]?.asString
+
+            val schema: MutableMap<String, FieldDef> = mutableMapOf()
 
             objS.entrySet().forEach { fieldEntry ->
                 val fieldDef = gson.fromJson(fieldEntry.value, FieldDef::class.java)
-                fieldDefMap[fieldEntry.key] = fieldDef
+                schema[fieldEntry.key] = fieldDef
             }
 
-            val useForLastModifiedDate =
+            val timeSliceFields =
                 objT
-                    .get("useForLastModifiedDate")
+                    .get("timeSliceFields")
                     ?.asString
                     ?.split(",")
                     ?.map { it.trim() }
-                    ?.map { Pair(it, fieldDefMap[it]?.type ?: SupportedType.DATETIME) }
+                    ?.map { Pair(it, schema[it]?.type ?: SupportedType.DATETIME) }
                     ?: listOf(Pair("LastModifiedDate", SupportedType.DATETIME))
 
             result[dataSetEntry.key]!![tableEntry.key] =
                 TableDef(
                     query = query,
-                    fieldDefMap = fieldDefMap,
-                    useForLastModifiedDate = useForLastModifiedDate,
+                    schema = schema,
+                    timeSliceFields = timeSliceFields,
                     mergeKeys = mergeKeys,
+                    aggregateSource = aggregateSource,
                 )
         }
     }

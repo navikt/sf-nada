@@ -7,7 +7,6 @@ import com.google.cloud.bigquery.TableDefinition
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import mu.KotlinLogging
-import no.nav.sf.nada.HttpCalls.doCallWithSFToken
 import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.Metrics
 import no.nav.sf.nada.SupportedType
@@ -23,7 +22,6 @@ import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
-import org.http4k.urlEncoded
 import java.io.File
 
 typealias BigQueryMetadata = Map<String, Gui.DatasetMetadata>
@@ -47,10 +45,10 @@ object Gui {
         val dataset = req.query("dataset")
         val table = req.query("table")
         log.info { "Will perform testcall $dataset $table" }
-        val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
+        val timeSliceFields = application.mapDef[dataset]!![table]!!.timeSliceFields
         val query = application.mapDef[dataset]!![table]!!.query
 
-        val queryYesterday = query.addYesterdayRestriction(useForLastModifiedDate)
+        val queryYesterday = query.addYesterdayRestriction(timeSliceFields)
 
         var success = true
         var yesterday = 0
@@ -80,12 +78,12 @@ object Gui {
 
         result += "<br>"
 
-        val responseTotal = doSFQuery(query.addHistoryLimitOnlyOneDateField(5, useForLastModifiedDate))
+        val responseTotal = doSFQuery(query.addHistoryLimitOnlyOneDateField(5, timeSliceFields))
 
         File("/tmp/responseLast5Call").writeText(
             "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimitOnlyOneDateField(
                 5,
-                useForLastModifiedDate,
+                timeSliceFields,
             )}\nRESPONSE:\n" +
                 responseTotal.toMessage(),
         )
@@ -141,7 +139,7 @@ object Gui {
         val numRows: Long,
         val columns: List<ColumnMetadata>,
         val salesforceQuery: String? = null,
-        val useForLastModifiedDate: String = "LastModifiedDate",
+        val timeSliceFields: String = "LastModifiedDate",
         val mergeKeys: String = "",
         val active: Boolean = true,
         val operationInfo: OperationInfo,
@@ -199,22 +197,22 @@ object Gui {
                         mapDef[datasetName]?.get(tableName)?.query?.replace("+", " ")
                             ?: "No query configured"
 
-                    val useForLastModifiedDate =
-                        mapDef[datasetName]?.get(tableName)?.useForLastModifiedDate ?: listOf(Pair("Missing", SupportedType.DATETIME))
+                    val timeSliceFields =
+                        mapDef[datasetName]?.get(tableName)?.timeSliceFields ?: listOf(Pair("Missing", SupportedType.DATETIME))
 
                     val mergeKeys = mapDef[datasetName]?.get(tableName)?.mergeKeys ?: listOf()
 
                     val selectFields = extractFields(tableQuery)
 
                     val numRows = definition.numRows!!
-                    val schema = definition.schema!!
+                    val bigQuerySchema = definition.schema!!
 
                     val columns = mutableListOf<ColumnMetadata>()
-                    val fieldDefMap = mapDef[datasetName]?.get(tableName)?.fieldDefMap
+                    val configSchema = mapDef[datasetName]?.get(tableName)?.schema
 
-                    for (field in schema.fields) {
+                    for (field in bigQuerySchema.fields) {
                         val salesforceFieldName =
-                            fieldDefMap
+                            configSchema
                                 ?.entries
                                 ?.find { it.value.name == field.name } // Match BigQuery column name with fieldDefMap.name
                                 ?.key
@@ -222,7 +220,7 @@ object Gui {
                                 ?: "No mapping configured"
 
                         val typeText =
-                            fieldDefMap
+                            configSchema
                                 ?.entries
                                 ?.find { it.value.name == field.name } // Match BigQuery column name with fieldDefMap.name
                                 ?.value
@@ -252,7 +250,7 @@ object Gui {
 
                     // Looking up SF fields in SELECT that has no mapping - therfor no definition what corresponding BigQ name is
                     selectFields
-                        .filter { selectField -> fieldDefMap?.keys?.let { !it.contains(selectField) } ?: false }
+                        .filter { selectField -> configSchema?.keys?.let { !it.contains(selectField) } ?: false }
                         .forEach { queryFieldUnmapped ->
                             val columnInfoQueryFieldNotMapped =
                                 ColumnMetadata(
@@ -266,17 +264,17 @@ object Gui {
 
                     selectFields
                         .filter { selectField ->
-                            fieldDefMap?.keys?.let { it.contains(selectField) } ?: false
+                            configSchema?.keys?.let { it.contains(selectField) } ?: false
                         } // Has map entry
                         .filter { selectField ->
-                            fieldDefMap?.entries?.find { it.key == selectField }?.value?.name.let { mappedBigQField ->
-                                schema.fields.let { !(it.any { it.name == mappedBigQField }) }
+                            configSchema?.entries?.find { it.key == selectField }?.value?.name.let { mappedBigQField ->
+                                bigQuerySchema.fields.let { !(it.any { it.name == mappedBigQField }) }
                             }
                         }.forEach { queryFieldMappedToNonExistingBigQueryField ->
                             val columnInfoQueryFieldMappedToNonExistingBigQueryField =
                                 ColumnMetadata(
                                     name =
-                                        fieldDefMap
+                                        configSchema
                                             ?.entries
                                             ?.find { it.key == queryFieldMappedToNonExistingBigQueryField }
                                             ?.value
@@ -296,7 +294,7 @@ object Gui {
                             numRows = numRows,
                             columns = columns,
                             salesforceQuery = tableQuery,
-                            useForLastModifiedDate = useForLastModifiedDate.joinToString(","),
+                            timeSliceFields = timeSliceFields.joinToString(","),
                             mergeKeys = mergeKeys.joinToString(","),
                             active = application.postToBigQuery && !(application.excludeTables.any { it == tableName }),
                             operationInfo = BulkOperation.operationInfo[datasetName]?.get(tableName) ?: OperationInfo(),

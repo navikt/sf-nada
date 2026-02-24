@@ -147,8 +147,8 @@ fun String.addNotRecordsFromTodayRestriction(dateFields: List<Pair<String, Suppo
     return "$this$${whereConnector()}$andClause"
 }
 
-fun String.addYesterdayRestriction(useForLastModifiedDate: List<Pair<String, SupportedType>>): String =
-    this.addDateRestriction(LocalDate.now().minusDays(1), useForLastModifiedDate)
+fun String.addYesterdayRestriction(timeSliceFields: List<Pair<String, SupportedType>>): String =
+    this.addDateRestriction(LocalDate.now().minusDays(1), timeSliceFields)
 
 fun parseCSVToJsonArrays(csvData: String): List<JsonArray> {
     File("/tmp/csvData").writeText(csvData)

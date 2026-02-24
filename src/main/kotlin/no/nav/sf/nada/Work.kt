@@ -21,7 +21,6 @@ import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.bulk.BulkOperation
 import no.nav.sf.nada.token.AccessTokenHandler
 import org.http4k.core.Response
-import org.http4k.urlEncoded
 import java.io.File
 import java.lang.IllegalStateException
 import java.lang.RuntimeException
@@ -46,15 +45,15 @@ fun fetchAndSend(
         throw RuntimeException("mapDef.json is missing a definition for table $table in dataset $dataset")
     }
 
-    val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
+    val timeSliceFields = application.mapDef[dataset]!![table]!!.timeSliceFields
 
     val query =
         application.mapDef[dataset]!![table]!!.query.let { q ->
-            if (targetDate == null) q else q.addDateRestriction(targetDate, useForLastModifiedDate)
+            if (targetDate == null) q else q.addDateRestriction(targetDate, timeSliceFields)
         }
     log.info { "Will use query: $query" }
 
-    val fieldDef = application.mapDef[dataset]!![table]!!.fieldDefMap
+    val schema = application.mapDef[dataset]!![table]!!.schema
 
     val tableId = TableId.of(application.projectId, dataset, table)
 
@@ -85,7 +84,7 @@ fun fetchAndSend(
 
     if (totalSize > 0) {
         var records = obj["records"].asJsonArray
-        remapAndSendRecords(records, tableId, fieldDef)
+        remapAndSendRecords(records, tableId, schema)
         while (!done) {
             response = doCallWithSFToken("${AccessTokenHandler.instanceUrl}$nextRecordsUrl")
             obj = JsonParser.parseString(response.bodyString()) as JsonObject
@@ -93,7 +92,7 @@ fun fetchAndSend(
             nextRecordsUrl = obj["nextRecordsUrl"]?.asString
             log.info { "CONTINUATION RESULT overview - totalSize $totalSize, done $done, nextRecordsUrl $nextRecordsUrl" }
             records = obj["records"].asJsonArray
-            remapAndSendRecords(records, tableId, fieldDef)
+            remapAndSendRecords(records, tableId, schema)
         }
     }
 
@@ -226,9 +225,9 @@ fun predictQueriesForWork(targetDate: LocalDate = LocalDate.now().minusDays(1)):
                     if (excluding) result += " Will skip excluded table $it\n"
                 }
             }.forEach { table ->
-                val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
+                val timeSliceFields = application.mapDef[dataset]!![table]!!.timeSliceFields
                 val query =
-                    application.mapDef[dataset]!![table]!!.query.addDateRestriction(targetDate, useForLastModifiedDate)
+                    application.mapDef[dataset]!![table]!!.query.addDateRestriction(targetDate, timeSliceFields)
 
                 val bulk = HttpCalls.queryToUseForBulkQuery(dataset, table)
 

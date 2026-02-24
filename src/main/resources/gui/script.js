@@ -141,12 +141,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     queryDiv.textContent = table.salesforceQuery;
                     tableDetails.appendChild(queryDiv);
 
-                    if (table.useForLastModifiedDate !== "(LastModifiedDate, DATETIME)" || table.mergeKeys !== "") {
+                    if (table.timeSliceFields !== "(LastModifiedDate, DATETIME)" || table.mergeKeys !== "") {
                         lastModifiedFieldDiv = document.createElement("div");
                         lastModifiedFieldDiv.classList.add("salesforce-query");
                         lastModifiedFieldDiv.classList.add("last-modified-field");
-                        if (table.useForLastModifiedDate !== "(LastModifiedDate, DATETIME)") {
-                            lastModifiedFieldDiv.textContent = table.useForLastModifiedDate + " used instead of LastModifiedDate";
+                        if (table.timeSliceFields !== "(LastModifiedDate, DATETIME)") {
+                            lastModifiedFieldDiv.textContent = table.timeSliceFields + " used instead of LastModifiedDate";
                         }
                         if (table.mergeKeys !== "") {
                             lastModifiedFieldDiv.textContent += " (Merge keys: " + table.mergeKeys + ")";

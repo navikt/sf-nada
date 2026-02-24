@@ -54,7 +54,7 @@
           "type": "INTEGER"
         }
       },
-      "useForLastModifiedDate": "MetricsDate"
+      "timeSliceFields": "MetricsDate"
     },
     "active-permset-license-metric": {
       "query": "SELECT Id, ActiveUserCount,AssignedUserCount,DeveloperName, PermissionSetLicense.MasterLabel,TotalLicenses, MetricsDate FROM ActivePermSetLicenseMetric",
@@ -88,7 +88,7 @@
           "type": "DATE"
         }
       },
-      "useForLastModifiedDate": "MetricsDate"
+      "timeSliceFields": "MetricsDate"
     },
     "active-salesforce-user-v2-staging": {
       "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND CRM_NAV_Ident__c != null",
@@ -150,7 +150,7 @@
           "type": "BOOLEAN"
         }
       },
-      "useForLastModifiedDate": "LastModifiedDate,LastLoginDate",
+      "timeSliceFields": "LastModifiedDate,LastLoginDate",
       "mergeKeys" : "navIdent"
     },
     "community-user-login-v2": {
@@ -173,7 +173,7 @@
           "type": "STRING"
         }
       },
-      "useForLastModifiedDate": "LoginTime"
+      "timeSliceFields": "LoginTime"
     }
   }
 }
