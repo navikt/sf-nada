@@ -127,7 +127,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Create a separate div for the row count
                 const rowCountDiv = document.createElement("div");
                 rowCountDiv.classList.add("row-count");
-                rowCountDiv.textContent = `${table.numRows} records`;
+                if (table.numRowsTarget > 0) {
+                    rowCountDiv.textContent = `${table.numRows} / ${table.numRowsTarget} records`;
+                    rowCountDiv.title = `${table.numRows} records in staging table, ${table.numRowsTarget} records in target table`
+                } else {
+                    rowCountDiv.textContent = `${table.numRows} records`;
+                }
 
                 // Append the wrapper and row count div to the table header
                 tableHeader.appendChild(nameAndLabelWrapper);

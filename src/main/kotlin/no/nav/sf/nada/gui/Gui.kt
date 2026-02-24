@@ -4,6 +4,7 @@ import com.google.cloud.bigquery.BigQuery
 import com.google.cloud.bigquery.StandardTableDefinition
 import com.google.cloud.bigquery.Table
 import com.google.cloud.bigquery.TableDefinition
+import com.google.cloud.bigquery.TableId
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import io.opencensus.stats.Aggregation
@@ -18,6 +19,8 @@ import no.nav.sf.nada.application
 import no.nav.sf.nada.bulk.BulkOperation
 import no.nav.sf.nada.bulk.OperationInfo
 import no.nav.sf.nada.gson
+import no.nav.sf.nada.isStaging
+import no.nav.sf.nada.stagingTarget
 import no.nav.sf.nada.token.AccessTokenHandler
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
@@ -138,6 +141,7 @@ object Gui {
     data class TableMetadata(
         val tableName: String,
         val numRows: Long,
+        val numRowsTarget: Long,
         val columns: List<ColumnMetadata>,
         val salesforceQuery: String? = null,
         val timeSliceFields: String = "LastModifiedDate",
@@ -171,12 +175,26 @@ object Gui {
 
             for (table in tables) {
                 val fullTable: Table
+                var fullTableTarget: Table? = null
+                var numRowsTarget = 0L
                 try {
                     fullTable =
                         application.bigQueryService.getTable(
                             table.tableId,
                             BigQuery.TableOption.fields(BigQuery.TableField.NUM_ROWS, BigQuery.TableField.SCHEMA),
                         )
+
+                    if (table.tableId.isStaging()) {
+                        fullTableTarget =
+                            application.bigQueryService.getTable(
+                                TableId.of(table.tableId.project, table.tableId.dataset, table.tableId.stagingTarget()),
+                                BigQuery.TableOption.fields(BigQuery.TableField.NUM_ROWS, BigQuery.TableField.SCHEMA),
+                            )
+                        val definitionTarget = fullTableTarget.getDefinition<TableDefinition>()
+                        if (definitionTarget is StandardTableDefinition) {
+                            numRowsTarget = definitionTarget.numRows!!
+                        }
+                    }
                 } catch (e: Exception) {
                     log.error { e.printStackTrace() }
                     throw e
@@ -296,6 +314,7 @@ object Gui {
                         TableMetadata(
                             tableName = tableName,
                             numRows = numRows,
+                            numRowsTarget = numRowsTarget,
                             columns = columns,
                             salesforceQuery = tableQuery,
                             timeSliceFields = timeSliceFields.joinToString(","),
