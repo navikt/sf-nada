@@ -119,7 +119,7 @@ fun String.addHistoryLimitOnlyOneDateField(
     if (days == null) return this
     require(dateFields.isNotEmpty()) { "At least one date field must be provided" }
 
-    val clause = "${dateFields.first()} = LAST_N_DAYS:$days"
+    val clause = "${dateFields.first().first} = LAST_N_DAYS:$days"
 
     return "$this${whereConnector()}($clause)"
 }
