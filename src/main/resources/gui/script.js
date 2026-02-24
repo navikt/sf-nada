@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     aggregateLabel.textContent = 'AGGREGATION';
                     aggregateLabel.classList.add('aggregation-label'); // create CSS similar to inactive-label
                     aggregateLabel.title = "This table will be populated with an aggregation query";
-                    nameAndLabelWrapper.appendChild(mergeLabel);
+                    nameAndLabelWrapper.appendChild(aggregateLabel);
                 }
 
                 // Create a separate div for the row count
