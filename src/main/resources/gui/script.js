@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     const aggregateLabel = document.createElement("div");
                     aggregateLabel.textContent = 'AGGREGATION';
                     aggregateLabel.classList.add('aggregation-label'); // create CSS similar to inactive-label
-                    aggregateLabel.title = "This table will be populated with an aggregation query";
+                    aggregateLabel.title = "This table will be populated using an aggregation query in BigQuery SQL";
                     nameAndLabelWrapper.appendChild(aggregateLabel);
                 }
 
@@ -511,7 +511,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     buttonRow.appendChild(testQueryButton);
                     buttonRow.appendChild(spinner);
-                    buttonRow.appendChild(prepareBulkButton);
+
+                    if (!table.tableName?.endsWith("-staging")) {
+                        buttonRow.appendChild(prepareBulkButton);
+                    }
 
                     if (table.aggregateSource === "") {
                         tableDetails.appendChild(buttonRow);
