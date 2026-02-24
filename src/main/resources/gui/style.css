@@ -92,11 +92,11 @@ body {
 .aggregation-label {
     font-family: Arial, sans-serif;
     background-color: #e0bfe8; /* different background */
-    color: #301f7a;            /* different text color */
+    color: #6f56dc;           /* different text color */
     padding: 4px 5px;
     border-radius: 5px;
     margin-left: 10px; /* same spacing */
-    font-size: 13px;
+    font-size: 10px;
 }
 
 .inactive-label:hover {

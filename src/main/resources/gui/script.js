@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     queryDiv.textContent = table.salesforceQuery;
                     tableDetails.appendChild(queryDiv);
 
-                    if (table.timeSliceFields !== "(LastModifiedDate, DATETIME)" || table.mergeKeys !== "") {
+                    if (table.timeSliceFields !== "(LastModifiedDate, DATETIME)" || table.mergeKeys !== "" || table.aggregateSource !== "") {
                         lastModifiedFieldDiv = document.createElement("div");
                         lastModifiedFieldDiv.classList.add("salesforce-query");
                         lastModifiedFieldDiv.classList.add("last-modified-field");
@@ -158,6 +158,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                         if (table.mergeKeys !== "") {
                             lastModifiedFieldDiv.textContent += " (Merge keys: " + table.mergeKeys + ")";
+                        }
+                        if (table.aggregateSource !== "") {
+                            lastModifiedFieldDiv.textContent += "Aggregate source table: " + table.aggregateSource;
                         }
                         tableDetails.appendChild(lastModifiedFieldDiv);
                     }
@@ -497,7 +500,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     buttonRow.appendChild(spinner);
                     buttonRow.appendChild(prepareBulkButton);
 
-                    tableDetails.appendChild(buttonRow);
+                    if (table.aggregateSource === "") {
+                        tableDetails.appendChild(buttonRow);
+                    }
                 }
 
                 // Table columns (hidden by default)
@@ -527,7 +532,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
                 tableColumns.appendChild(tableColumnsTable);
-                tableDetails.appendChild(tableColumns);
+                if (table.aggregateSource === "") {
+                    tableDetails.appendChild(tableColumns);
+                }
                 tableDiv.appendChild(tableDetails);
 
                 // Toggle visibility of columns on header click
