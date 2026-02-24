@@ -29,10 +29,9 @@ object HttpCalls {
         table: String,
     ): String {
         val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
-        val withoutTimePart = application.mapDef[dataset]!![table]!!.withoutTimePart
         return application.mapDef[dataset]!![table]!!
             .query
-            .addNotRecordsFromTodayRestriction(useForLastModifiedDate, withoutTimePart)
+            .addNotRecordsFromTodayRestriction(useForLastModifiedDate)
     }
 
     fun doSFBulkStartQuery(

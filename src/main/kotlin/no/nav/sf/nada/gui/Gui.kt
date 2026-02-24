@@ -10,6 +10,7 @@ import mu.KotlinLogging
 import no.nav.sf.nada.HttpCalls.doCallWithSFToken
 import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.Metrics
+import no.nav.sf.nada.SupportedType
 import no.nav.sf.nada.TableDef
 import no.nav.sf.nada.addHistoryLimitOnlyOneDateField
 import no.nav.sf.nada.addYesterdayRestriction
@@ -47,10 +48,9 @@ object Gui {
         val table = req.query("table")
         log.info { "Will perform testcall $dataset $table" }
         val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
-        val withoutTimePart = application.mapDef[dataset]!![table]!!.withoutTimePart
         val query = application.mapDef[dataset]!![table]!!.query
 
-        val queryYesterday = query.addYesterdayRestriction(useForLastModifiedDate, withoutTimePart)
+        val queryYesterday = query.addYesterdayRestriction(useForLastModifiedDate)
 
         var success = true
         var yesterday = 0
@@ -142,7 +142,6 @@ object Gui {
         val columns: List<ColumnMetadata>,
         val salesforceQuery: String? = null,
         val useForLastModifiedDate: String = "LastModifiedDate",
-        val withoutTimePart: Boolean = false,
         val mergeKeys: String = "",
         val active: Boolean = true,
         val operationInfo: OperationInfo,
@@ -201,10 +200,7 @@ object Gui {
                             ?: "No query configured"
 
                     val useForLastModifiedDate =
-                        mapDef[datasetName]?.get(tableName)?.useForLastModifiedDate ?: listOf("Missing")
-
-                    val withoutTimePart =
-                        mapDef[datasetName]?.get(tableName)?.withoutTimePart ?: false
+                        mapDef[datasetName]?.get(tableName)?.useForLastModifiedDate ?: listOf(Pair("Missing", SupportedType.DATETIME))
 
                     val mergeKeys = mapDef[datasetName]?.get(tableName)?.mergeKeys ?: listOf()
 
@@ -301,7 +297,6 @@ object Gui {
                             columns = columns,
                             salesforceQuery = tableQuery,
                             useForLastModifiedDate = useForLastModifiedDate.joinToString(","),
-                            withoutTimePart = withoutTimePart,
                             mergeKeys = mergeKeys.joinToString(","),
                             active = application.postToBigQuery && !(application.excludeTables.any { it == tableName }),
                             operationInfo = BulkOperation.operationInfo[datasetName]?.get(tableName) ?: OperationInfo(),

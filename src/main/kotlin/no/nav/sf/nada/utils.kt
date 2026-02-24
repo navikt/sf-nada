@@ -79,54 +79,49 @@ object ShutdownHook {
     }
 }
 
+fun formatDate(
+    date: LocalDate,
+    type: SupportedType,
+): String =
+    when (type) {
+        SupportedType.DATE -> date.format(DateTimeFormatter.ISO_DATE)
+        SupportedType.DATETIME -> date.format(DateTimeFormatter.ISO_DATE) + "T00:00:00Z"
+        else -> throw UnsupportedOperationException("Unknown date format")
+    }
+
+fun String.whereConnector() =
+    if (contains(Regex("\\bWHERE\\b", RegexOption.IGNORE_CASE))) {
+        " AND "
+    } else {
+        " WHERE "
+    }
+
 fun String.addDateRestriction(
     localDate: LocalDate,
-    dateFields: List<String>,
-    withoutTimePart: Boolean,
+    dateFields: List<Pair<String, SupportedType>>,
 ): String {
     require(dateFields.isNotEmpty()) { "At least one date field must be provided" }
 
-    val connector =
-        if (contains(Regex("\\bWHERE\\b", RegexOption.IGNORE_CASE))) {
-            " AND "
-        } else {
-            " WHERE "
-        }
-
-    fun format(date: LocalDate): String =
-        buildString {
-            append(date.format(DateTimeFormatter.ISO_DATE))
-            if (!withoutTimePart) append("T00:00:00Z")
-        }
-
-    val today = format(localDate)
-    val tomorrow = format(localDate.plusDays(1))
-
     val clause =
-        dateFields.joinToString(" OR ") { field ->
+        dateFields.joinToString(" OR ") { (field, type) ->
+            val today = formatDate(localDate, type)
+            val tomorrow = formatDate(localDate.plusDays(1), type)
             "($field >= $today AND $field < $tomorrow)"
         }
 
-    return "$this$connector($clause)"
+    return "$this${whereConnector()}($clause)"
 }
 
 fun String.addHistoryLimitOnlyOneDateField(
     days: Int?,
-    dateFields: List<String>,
+    dateFields: List<Pair<String, SupportedType>>,
 ): String {
     if (days == null) return this
     require(dateFields.isNotEmpty()) { "At least one date field must be provided" }
 
-    val connector =
-        if (contains(Regex("\\bWHERE\\b", RegexOption.IGNORE_CASE))) {
-            " AND "
-        } else {
-            " WHERE "
-        }
-
     val clause = "${dateFields.first()} = LAST_N_DAYS:$days"
 
-    return "$this$connector($clause)"
+    return "$this${whereConnector()}($clause)"
 }
 
 fun String.addLimitRestriction(maxRecords: Int = 1000): String {
@@ -139,37 +134,21 @@ fun String.addLimitRestriction(maxRecords: Int = 1000): String {
     return "$this$connector+$maxRecords"
 }
 
-fun String.addNotRecordsFromTodayRestriction(
-    dateFields: List<String>,
-    withoutTimePart: Boolean,
-): String {
+fun String.addNotRecordsFromTodayRestriction(dateFields: List<Pair<String, SupportedType>>): String {
     if (dateFields.isEmpty()) return this
 
-    val connector =
-        if (contains(Regex("\\bWHERE\\b", RegexOption.IGNORE_CASE))) {
-            " AND "
-        } else {
-            " WHERE "
-        }
-
-    val todayValue =
-        buildString {
-            append(LocalDate.now().format(DateTimeFormatter.ISO_DATE))
-            if (!withoutTimePart) append("T00:00:00Z")
-        }
+    val today = LocalDate.now()
 
     val andClause =
-        dateFields.joinToString(" AND ") { field ->
-            "$field<$todayValue"
+        dateFields.joinToString(" AND ") { (field, type) ->
+            "$field<${formatDate(today, type)}"
         }
 
-    return "$this$connector$andClause"
+    return "$this$${whereConnector()}$andClause"
 }
 
-fun String.addYesterdayRestriction(
-    useForLastModifiedDate: List<String>,
-    withoutTimePart: Boolean,
-): String = this.addDateRestriction(LocalDate.now().minusDays(1), useForLastModifiedDate, withoutTimePart)
+fun String.addYesterdayRestriction(useForLastModifiedDate: List<Pair<String, SupportedType>>): String =
+    this.addDateRestriction(LocalDate.now().minusDays(1), useForLastModifiedDate)
 
 fun parseCSVToJsonArrays(csvData: String): List<JsonArray> {
     File("/tmp/csvData").writeText(csvData)

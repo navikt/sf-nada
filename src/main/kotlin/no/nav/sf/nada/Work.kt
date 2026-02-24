@@ -47,10 +47,10 @@ fun fetchAndSend(
     }
 
     val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
-    val withoutTimePart = application.mapDef[dataset]!![table]!!.withoutTimePart
+
     val query =
         application.mapDef[dataset]!![table]!!.query.let { q ->
-            if (targetDate == null) q else q.addDateRestriction(targetDate, useForLastModifiedDate, withoutTimePart)
+            if (targetDate == null) q else q.addDateRestriction(targetDate, useForLastModifiedDate)
         }
     log.info { "Will use query: $query" }
 
@@ -227,11 +227,8 @@ fun predictQueriesForWork(targetDate: LocalDate = LocalDate.now().minusDays(1)):
                 }
             }.forEach { table ->
                 val useForLastModifiedDate = application.mapDef[dataset]!![table]!!.useForLastModifiedDate
-                val withoutTimePart = application.mapDef[dataset]!![table]!!.withoutTimePart
                 val query =
-                    application.mapDef[dataset]!![table]!!.query.let { q ->
-                        q.addDateRestriction(targetDate, useForLastModifiedDate, withoutTimePart)
-                    }
+                    application.mapDef[dataset]!![table]!!.query.addDateRestriction(targetDate, useForLastModifiedDate)
 
                 val bulk = HttpCalls.queryToUseForBulkQuery(dataset, table)
 
@@ -364,7 +361,9 @@ fun makeDailyAggregate(targetDate: LocalDate) {
     // Daily aggregation query with "ALL" network row
     val query =
         """
-        INSERT INTO `platforce-prod-296b.license.community-user-login-daily` (date, networkId, logins, uniqueUsers)
+        INSERT INTO `platforce-prod-296b.license.community-user-login-daily`
+        (date, networkId, networkName, logins, uniqueUsers)
+
         WITH per_network AS (
             SELECT
                 DATE(loginAt) AS date,
@@ -384,10 +383,36 @@ fun makeDailyAggregate(targetDate: LocalDate) {
             FROM `platforce-prod-296b.license.community-user-login-v2`
             WHERE DATE(loginAt) = '$dateStr'
             GROUP BY DATE(loginAt)
+        ),
+        combined AS (
+            SELECT * FROM per_network
+            UNION ALL
+            SELECT * FROM all_network
         )
-        SELECT * FROM per_network
-        UNION ALL
-        SELECT * FROM all_network
+
+        SELECT
+            date,
+            networkId,
+            CASE networkId
+                WHEN '0DB2o000000PCSHGA4' THEN 'Tolketjenesten'
+                WHEN '0DB2o000000Ug64GAC' THEN 'Kurs'
+                WHEN '0DB2o000000Ug69GAC' THEN 'nks'
+                WHEN '0DB2o000000Ug6iGAC' THEN 'Aa-registeret'
+                WHEN '0DB2o000000Ug9DGAS' THEN 'Innboks'
+                WHEN '0DB2o000000Ug9IGAS' THEN 'Jobbsporet'
+                WHEN '0DB7U0000004C9mWAE' THEN 'lesehjelp'
+                WHEN '0DB7U0000004C9rWAE' THEN 'lesehjelpAura'
+                WHEN '0DB7U0000004C9wWAE' THEN 'Kontaktskjema'
+                WHEN '0DB7U0000008OIUWA2' THEN 'Tilbakemelding'
+                WHEN '0DB7U0000008OIZWA2' THEN 'TilbakemeldingAura'
+                WHEN '0DB7U000000TN3uWAG' THEN 'Arbeidsgiver Dialog'
+                WHEN '0DB7U000000fxSzWAI' THEN 'innholdsbibliotek'
+                WHEN 'ALL' THEN 'Sum'
+                ELSE 'UKJENT'
+            END AS networkName,
+            logins,
+            uniqueUsers
+        FROM combined
         """.trimIndent()
 
     val job =
@@ -410,26 +435,54 @@ fun makeHourlyAggregate(targetDate: LocalDate) {
     // Hourly aggregation query (login count per network per hour)
     val query =
         """
-        INSERT INTO `platforce-prod-296b.license.community-user-login-hourly` (date, networkId, hour, logins)
+        INSERT INTO `platforce-prod-296b.license.community-user-login-hourly`
+        (date, networkId, networkName, hour, logins)
+
+        WITH combined AS (
+            SELECT
+                DATE(loginAt) AS date,
+                networkId,
+                EXTRACT(HOUR FROM loginAt) AS hour,
+                COUNT(id) AS logins
+            FROM `platforce-prod-296b.license.community-user-login-v2`
+            WHERE DATE(loginAt) = '$dateStr'
+            GROUP BY networkId, DATE(loginAt), hour
+
+            UNION ALL
+
+            SELECT
+                DATE(loginAt) AS date,
+                'ALL' AS networkId,
+                EXTRACT(HOUR FROM loginAt) AS hour,
+                COUNT(id) AS logins
+            FROM `platforce-prod-296b.license.community-user-login-v2`
+            WHERE DATE(loginAt) = '$dateStr'
+            GROUP BY DATE(loginAt), hour
+        )
+
         SELECT
-            DATE(loginAt) AS date,
+            date,
             networkId,
-            EXTRACT(HOUR FROM loginAt) AS hour,
-            COUNT(id) AS logins
-        FROM `platforce-prod-296b.license.community-user-login-v2`
-        WHERE DATE(loginAt) = '$dateStr'
-        GROUP BY networkId, DATE(loginAt), hour
-        
-        UNION ALL
-        
-        SELECT
-            DATE(loginAt) AS date,
-            'ALL' AS networkId,
-            EXTRACT(HOUR FROM loginAt) AS hour,
-            COUNT(id) AS logins
-        FROM `platforce-prod-296b.license.community-user-login-v2`
-        WHERE DATE(loginAt) = '$dateStr'
-        GROUP BY DATE(loginAt), hour
+            CASE networkId
+                WHEN '0DB2o000000PCSHGA4' THEN 'Tolketjenesten'
+                WHEN '0DB2o000000Ug64GAC' THEN 'Kurs'
+                WHEN '0DB2o000000Ug69GAC' THEN 'nks'
+                WHEN '0DB2o000000Ug6iGAC' THEN 'Aa-registeret'
+                WHEN '0DB2o000000Ug9DGAS' THEN 'Innboks'
+                WHEN '0DB2o000000Ug9IGAS' THEN 'Jobbsporet'
+                WHEN '0DB7U0000004C9mWAE' THEN 'lesehjelp'
+                WHEN '0DB7U0000004C9rWAE' THEN 'lesehjelpAura'
+                WHEN '0DB7U0000004C9wWAE' THEN 'Kontaktskjema'
+                WHEN '0DB7U0000008OIUWA2' THEN 'Tilbakemelding'
+                WHEN '0DB7U0000008OIZWA2' THEN 'TilbakemeldingAura'
+                WHEN '0DB7U000000TN3uWAG' THEN 'Arbeidsgiver Dialog'
+                WHEN '0DB7U000000fxSzWAI' THEN 'innholdsbibliotek'
+                WHEN 'ALL' THEN 'Sum'
+                ELSE 'UKJENT'
+            END AS networkName,
+            hour,
+            logins
+        FROM combined
         """.trimIndent()
 
     val job =
