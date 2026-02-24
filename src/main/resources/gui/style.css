@@ -81,8 +81,18 @@ body {
 
 .merge-label {
     font-family: Arial, sans-serif;
-    background-color: #cfead6; /* different background */
+    background-color: #c6e8cd; /* different background */
     color: #1f7a4d;            /* different text color */
+    padding: 4px 5px;
+    border-radius: 5px;
+    margin-left: 10px; /* same spacing */
+    font-size: 13px;
+}
+
+.aggregation-label {
+    font-family: Arial, sans-serif;
+    background-color: #e0bfe8; /* different background */
+    color: #301f7a;            /* different text color */
     padding: 4px 5px;
     border-radius: 5px;
     margin-left: 10px; /* same spacing */

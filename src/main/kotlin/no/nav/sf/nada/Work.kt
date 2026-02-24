@@ -51,66 +51,104 @@ fun fetchAndSend(
         application.mapDef[dataset]!![table]!!.query.let { q ->
             if (targetDate == null) q else q.addDateRestriction(targetDate, timeSliceFields)
         }
-    log.info { "Will use query: $query" }
-
-    val schema = application.mapDef[dataset]!![table]!!.schema
 
     val tableId = TableId.of(application.projectId, dataset, table)
 
-    Metrics.fetchRequest.inc()
-    var response = doSFQuery(query)
+    val aggregateSource = application.mapDef[dataset]!![table]!!.aggregateSource
 
-    if (response.status.code == 400) {
-        Metrics.productsQueryFailed.labels(table).inc()
-        log.error { "${response.status.code}:${response.bodyString()}" }
-        throw IllegalStateException("${response.status.code}:${response.bodyString()}")
-    }
-    var obj: JsonObject
-    try {
-        obj = JsonParser.parseString(response.bodyString()) as JsonObject
-        File("/tmp/latestParsedObject").writeText(obj.toString())
-    } catch (e: Exception) {
-        throw IllegalStateException(response.toMessage() + "\n" + e.message)
-    }
-    val totalSize = obj["totalSize"].asInt
-    var done = obj["done"].asBoolean
-    var nextRecordsUrl: String? = obj["nextRecordsUrl"]?.asString
-    log.info { "QUERY RESULT overview - totalSize $totalSize, done $done, nextRecordsUrl $nextRecordsUrl" }
-    Metrics.productsRead.labels(table).inc(totalSize.toDouble())
+    if (aggregateSource != null) {
+        log.info { "Will use aggregate query: $query" }
+        doAggregateQuery(targetDate!!, aggregateSource, query, tableId)
+    } else {
+        log.info { "Will use fetch query: $query" }
+        val schema = application.mapDef[dataset]!![table]!!.schema
 
-    if (tableId.isStaging()) {
-        truncateTable(tableId)
-    }
+        Metrics.fetchRequest.inc()
 
-    if (totalSize > 0) {
-        var records = obj["records"].asJsonArray
-        remapAndSendRecords(records, tableId, schema)
-        while (!done) {
-            response = doCallWithSFToken("${AccessTokenHandler.instanceUrl}$nextRecordsUrl")
-            obj = JsonParser.parseString(response.bodyString()) as JsonObject
-            done = obj["done"].asBoolean
-            nextRecordsUrl = obj["nextRecordsUrl"]?.asString
-            log.info { "CONTINUATION RESULT overview - totalSize $totalSize, done $done, nextRecordsUrl $nextRecordsUrl" }
-            records = obj["records"].asJsonArray
-            remapAndSendRecords(records, tableId, schema)
+        var response = doSFQuery(query)
+
+        if (response.status.code == 400) {
+            Metrics.productsQueryFailed.labels(table).inc()
+            log.error { "${response.status.code}:${response.bodyString()}" }
+            throw IllegalStateException("${response.status.code}:${response.bodyString()}")
         }
-    }
+        var obj: JsonObject
+        try {
+            obj = JsonParser.parseString(response.bodyString()) as JsonObject
+            File("/tmp/latestParsedObject").writeText(obj.toString())
+        } catch (e: Exception) {
+            throw IllegalStateException(response.toMessage() + "\n" + e.message)
+        }
+        val totalSize = obj["totalSize"].asInt
+        var done = obj["done"].asBoolean
+        var nextRecordsUrl: String? = obj["nextRecordsUrl"]?.asString
+        log.info { "QUERY RESULT overview - totalSize $totalSize, done $done, nextRecordsUrl $nextRecordsUrl" }
+        Metrics.productsRead.labels(table).inc(totalSize.toDouble())
 
-    if (tableId.isStaging()) {
-        val mergeKeys = application.mapDef[dataset]!![table]!!.mergeKeys
-        mergeStagingIntoTargetWithRetry(
-            tableId,
-            keys = mergeKeys,
-        )
-    }
+        if (tableId.isStaging()) {
+            truncateTable(tableId)
+        }
 
-    if (tableId.table == "community-user-login-v2" && targetDate != null) {
-        log.info(
-            "Post streaming raw data for community-user-login-v2 ($totalSize records), will attempt inserting into daily and hourly aggregate tables",
-        )
-        makeDailyAggregate(targetDate)
-        makeHourlyAggregate(targetDate)
+        if (totalSize > 0) {
+            var records = obj["records"].asJsonArray
+            remapAndSendRecords(records, tableId, schema)
+            while (!done) {
+                response = doCallWithSFToken("${AccessTokenHandler.instanceUrl}$nextRecordsUrl")
+                obj = JsonParser.parseString(response.bodyString()) as JsonObject
+                done = obj["done"].asBoolean
+                nextRecordsUrl = obj["nextRecordsUrl"]?.asString
+                log.info { "CONTINUATION RESULT overview - totalSize $totalSize, done $done, nextRecordsUrl $nextRecordsUrl" }
+                records = obj["records"].asJsonArray
+                remapAndSendRecords(records, tableId, schema)
+            }
+        }
+
+        if (tableId.isStaging()) {
+            val mergeKeys = application.mapDef[dataset]!![table]!!.mergeKeys
+            mergeStagingIntoTargetWithRetry(
+                tableId,
+                keys = mergeKeys,
+            )
+        }
+
+//        if (tableId.table == "community-user-login-v2" && targetDate != null) {
+//            log.info(
+//                "Post streaming raw data for community-user-login-v2 ($totalSize records), will attempt inserting into daily and hourly aggregate tables",
+//            )
+//            makeDailyAggregate(targetDate)
+//            makeHourlyAggregate(targetDate)
+//        }
     }
+}
+
+const val DATE_TOKEN = "\${date}"
+const val SOURCE_TOKEN = "\${source}"
+const val THIS_TOKEN = "\${this}"
+
+fun doAggregateQuery(
+    targetDate: LocalDate,
+    aggregateSource: String,
+    query: String,
+    tableId: TableId,
+) {
+    val bigQuery = application.bigQueryService
+
+    val queryEval =
+        query
+            .replace(DATE_TOKEN, targetDate.toString())
+            .replace(SOURCE_TOKEN, aggregateSource)
+            .replace(THIS_TOKEN, "${tableId.project}.${tableId.dataset}.${tableId.table}")
+
+    val job =
+        bigQuery.create(
+            JobInfo.of(QueryJobConfiguration.newBuilder(queryEval).build()),
+        )
+    job.waitFor()
+
+    if (job.status.error != null) {
+        throw RuntimeException("Aggregate failed: ${job.status.error} - queryEval: $queryEval")
+    }
+    log.info("Aggregate successful")
 }
 
 fun Response.parsedRecordsCount(): Int {
@@ -196,18 +234,40 @@ internal fun work(targetDate: LocalDate = LocalDate.now().minusDays(1)) {
         "Work session starting to fetch for $targetDate excluding ${application.excludeTables} - post to BQ: ${application.postToBigQuery}"
     }
     try {
-        application.mapDef.keys.forEach { dataset ->
-            application.mapDef[dataset]!!
-                .keys
-                .filter {
-                    !(application.excludeTables.contains(it)).also { excluding ->
-                        if (excluding) log.info { "Will skip excluded table $it" }
-                    }
-                }.forEach { table ->
-                    log.info { "Will attempt fetch and send for dataset $dataset, table $table, date $targetDate" }
-                    fetchAndSend(targetDate, dataset, table)
-                    application.hasPostedToday = true
+        val baseTables = mutableListOf<Triple<String, String, TableDef>>()
+        val aggregateTables = mutableListOf<Triple<String, String, TableDef>>()
+
+        // 🔹 classify first
+        application.mapDef.forEach { (dataset, tables) ->
+            tables.forEach { (tableName, tableDef) ->
+
+                if (application.excludeTables.contains(tableName)) {
+                    log.info { "Will skip excluded table $tableName" }
+                    return@forEach
                 }
+
+                val entry = Triple(dataset, tableName, tableDef)
+
+                if (tableDef.aggregateSource == null) {
+                    baseTables += entry
+                } else {
+                    aggregateTables += entry
+                }
+            }
+        }
+
+        // 🔹 phase 1 — base loads
+        baseTables.forEach { (dataset, table, _) ->
+            log.info { "Base load for dataset $dataset, table $table, date $targetDate" }
+            fetchAndSend(targetDate, dataset, table)
+            application.hasPostedToday = true
+        }
+
+        // 🔹 phase 2 — aggregates
+        aggregateTables.forEach { (dataset, table, _) ->
+            log.info { "Aggregate load for dataset $dataset, table $table, date $targetDate" }
+            fetchAndSend(targetDate, dataset, table)
+            application.hasPostedToday = true
         }
     } catch (e: Exception) {
         log.error { "Failed to do work ${e.message} - has posted partially: ${application.hasPostedToday}" }

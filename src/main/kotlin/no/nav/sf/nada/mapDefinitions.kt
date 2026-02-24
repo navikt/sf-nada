@@ -33,7 +33,7 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
         objDS.entrySet().forEach { tableEntry ->
             val objT = tableEntry.value.asJsonObject
             val query = objT["query"]!!.asString
-            val objS = objT["schema"]!!.asJsonObject
+            val objS = objT["schema"]?.asJsonObject
 
             val mergeKeys =
                 objT
@@ -46,7 +46,7 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
 
             val schema: MutableMap<String, FieldDef> = mutableMapOf()
 
-            objS.entrySet().forEach { fieldEntry ->
+            objS?.entrySet()?.forEach { fieldEntry ->
                 val fieldDef = gson.fromJson(fieldEntry.value, FieldDef::class.java)
                 schema[fieldEntry.key] = fieldDef
             }

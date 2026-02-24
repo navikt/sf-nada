@@ -6,6 +6,7 @@ import com.google.cloud.bigquery.Table
 import com.google.cloud.bigquery.TableDefinition
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import io.opencensus.stats.Aggregation
 import mu.KotlinLogging
 import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.Metrics
@@ -141,6 +142,7 @@ object Gui {
         val salesforceQuery: String? = null,
         val timeSliceFields: String = "LastModifiedDate",
         val mergeKeys: String = "",
+        val aggregateSource: String = "",
         val active: Boolean = true,
         val operationInfo: OperationInfo,
     )
@@ -201,6 +203,8 @@ object Gui {
                         mapDef[datasetName]?.get(tableName)?.timeSliceFields ?: listOf(Pair("Missing", SupportedType.DATETIME))
 
                     val mergeKeys = mapDef[datasetName]?.get(tableName)?.mergeKeys ?: listOf()
+
+                    val aggregateSource = mapDef[datasetName]?.get(tableName)?.aggregateSource ?: ""
 
                     val selectFields = extractFields(tableQuery)
 
@@ -296,6 +300,7 @@ object Gui {
                             salesforceQuery = tableQuery,
                             timeSliceFields = timeSliceFields.joinToString(","),
                             mergeKeys = mergeKeys.joinToString(","),
+                            aggregateSource = aggregateSource,
                             active = application.postToBigQuery && !(application.excludeTables.any { it == tableName }),
                             operationInfo = BulkOperation.operationInfo[datasetName]?.get(tableName) ?: OperationInfo(),
                         )

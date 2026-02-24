@@ -116,6 +116,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     nameAndLabelWrapper.appendChild(mergeLabel);
                 }
 
+                if (table.aggregateSource !== "") {
+                    const aggregateLabel = document.createElement("div");
+                    aggregateLabel.textContent = 'AGGREGATION';
+                    aggregateLabel.classList.add('aggregation-label'); // create CSS similar to inactive-label
+                    aggregateLabel.title = "This table will be populated with an aggregation query";
+                    nameAndLabelWrapper.appendChild(mergeLabel);
+                }
+
                 // Create a separate div for the row count
                 const rowCountDiv = document.createElement("div");
                 rowCountDiv.classList.add("row-count");
