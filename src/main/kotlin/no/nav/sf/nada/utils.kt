@@ -119,7 +119,10 @@ fun String.addHistoryLimitOnlyOneDateField(
     if (days == null) return this
     require(dateFields.isNotEmpty()) { "At least one date field must be provided" }
 
-    val clause = "${dateFields.first().first} = LAST_N_DAYS:$days"
+    val clause =
+        dateFields.joinToString(" OR ") { (field, _) ->
+            "$field = LAST_N_DAYS:$days"
+        }
 
     return "$this${whereConnector()}($clause)"
 }
@@ -144,7 +147,7 @@ fun String.addNotRecordsFromTodayRestriction(dateFields: List<Pair<String, Suppo
             "$field<${formatDate(today, type)}"
         }
 
-    return "$this$${whereConnector()}$andClause"
+    return "$this${whereConnector()}$andClause"
 }
 
 fun String.addYesterdayRestriction(timeSliceFields: List<Pair<String, SupportedType>>): String =

@@ -231,7 +231,7 @@ fun predictQueriesForWork(targetDate: LocalDate = LocalDate.now().minusDays(1)):
 
                 val bulk = HttpCalls.queryToUseForBulkQuery(dataset, table)
 
-                result += "$dataset $table fetch query:\n$query\nbulk:\n $bulk\n**********************\n"
+                result += "$dataset $table fetch query:\n${query}\nbulk:\n $bulk\n**********************\n"
 
                 application.hasPostedToday = true
             }
