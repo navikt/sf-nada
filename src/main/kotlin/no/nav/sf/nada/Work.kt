@@ -47,14 +47,14 @@ fun fetchAndSend(
 
     val timeSliceFields = application.mapDef[dataset]!![table]!!.timeSliceFields
 
+    val aggregateSource = application.mapDef[dataset]!![table]!!.aggregateSource
+
     val query =
         application.mapDef[dataset]!![table]!!.query.let { q ->
-            if (targetDate == null) q else q.addDateRestriction(targetDate, timeSliceFields)
+            if (targetDate == null || aggregateSource != null) q else q.addDateRestriction(targetDate, timeSliceFields)
         }
 
     val tableId = TableId.of(application.projectId, dataset, table)
-
-    val aggregateSource = application.mapDef[dataset]!![table]!!.aggregateSource
 
     if (aggregateSource != null) {
         log.info { "Will use aggregate query: $query" }
