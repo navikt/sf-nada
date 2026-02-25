@@ -56,9 +56,101 @@ They are well formed json-objects defined as:
 ```
 Note that you can map nested fields in Salesforce. I.e "LiveChatButton.MasterLabel" is a legal field name.
 
+### Extended table behaviors
+
+Originally, each configured map definition resulted in an append job, where changed rows from Salesforce were continuously appended to BigQuery.
+
+The app now supports additional table behaviors depending on configuration.
+
+#### Append (default)
+
+If no special options are configured, the table behaves as before:
+
+Fetch records from Salesforce (last modified yesterday)
+
+Append rows to the target BigQuery table
+
+Historical changes accumulate over time
+
+This is still the default behavior.
+
+#### Merge / Update tables (state tables)
+
+To maintain a BigQuery table that reflects the current state in Salesforce, merge/update is supported.
+
+##### Configuration
+
+Add mergeKeys to the table definition and use a staging table name ending with -staging.
+
+Example:
+```
+{
+    "my_dataset": {
+        "my_table-staging": {
+            "query": "...",
+            "mergeKeys": ["Id"],
+            "schema": { ... }
+        }
+    }
+}
+```
+##### Daily flow
+
+When mergeKeys is present and the table name ends with -staging, the daily job will:
+
+* Truncate the staging table
+* Append newly fetched rows into the staging table
+* Merge staging into the base table (Base table name = staging name without -staging)
+* Matching rows (by mergeKeys) are updated
+* Non-matching rows are inserted
+
+##### Result
+
+Base table represents the latest Salesforce state
+
+Avoids accumulating historical duplicates
+
+NB Could be expensive on a large table (table is scanned on merge)
+
+#### Aggregation tables
+
+Aggregation tables allow running BigQuery SQL transformations instead of fetching from Salesforce.
+
+If aggregateSource is defined in the map definition, the table is treated as an aggregation table.
+
+##### Behavior
+
+* No Salesforce query is executed
+* The configured query is executed directly in BigQuery
+* The query is treated as a BigQuery SQL template
+
+##### Template variables
+
+The following placeholders are supported inside the query:
+
+${this} — destination table
+
+${source} — source BigQuery table defined by aggregateSource
+
+${date} — target date (typically yesterday)
+
+Example
+```
+{
+    "my_dataset": {
+        "daily_logins": {
+            "aggregateSource": "project.dataset.raw_logins",
+            "query": "INSERT INTO `${this}` SELECT ... FROM `${source}` WHERE DATE(loginAt) = '${date}'"
+        }
+    }
+}
+```
+
+Typically used for metrics
+
 ### Gui-ingesses
 
 You can use the gui ingresses (team-dialog examples: https://sf-nada-dialog.dev.intern.nav.no/internal/gui, https://sf-nada-dialog.intern.nav.no/internal/gui) to examine the state of the app in dev and prod. Here you can expand each table
-to verify how the current deployed map definition file are being parsed by the app versus metadata from BigQuery. You can also run the query for that table (returning a total count) to see if the fetch from salesforce
+to verify how the current deployed map definition file are being parsed by the app versus metadata from BigQuery. You can also run the query for that table (returning a count yesterday plus latest 5 days) to see if the fetch from salesforce
 goes through successfully, and perform a bulk transfer that in a first step prepares the data in Salesforce and in a second step transfers the data to BigQuery.
 If POST_TO_BIGQUERY is false or a table you are looking at is listed in EXCLUDE_TABLES you only get to simulate the transfer of data to BigQuery - no data will be sent.
