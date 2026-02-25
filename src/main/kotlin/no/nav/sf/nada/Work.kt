@@ -49,12 +49,21 @@ fun fetchAndSend(
 
     val aggregateSource = application.mapDef[dataset]!![table]!!.aggregateSource
 
+    val tableId = TableId.of(application.projectId, dataset, table)
+
     val query =
         application.mapDef[dataset]!![table]!!.query.let { q ->
-            if (targetDate == null || aggregateSource != null) q else q.addDateRestriction(targetDate, timeSliceFields)
+            if (targetDate == null || aggregateSource != null) {
+                q
+            } else {
+                q.addDateRestriction(
+                    localDate = targetDate,
+                    dateFields = timeSliceFields,
+                    // In case of merge include all after (for example yesterday + today until job execution):
+                    includeAllAfter = tableId.isStaging(),
+                )
+            }
         }
-
-    val tableId = TableId.of(application.projectId, dataset, table)
 
     if (aggregateSource != null) {
         log.info { "Will use aggregate query: $query" }
@@ -238,7 +247,6 @@ internal fun work(targetDate: LocalDate = LocalDate.now().minusDays(1)) {
         val baseTables = mutableListOf<Triple<String, String, TableDef>>()
         val aggregateTables = mutableListOf<Triple<String, String, TableDef>>()
 
-        // 🔹 classify first
         application.mapDef.forEach { (dataset, tables) ->
             tables.forEach { (tableName, tableDef) ->
 
@@ -257,14 +265,12 @@ internal fun work(targetDate: LocalDate = LocalDate.now().minusDays(1)) {
             }
         }
 
-        // 🔹 phase 1 — base loads
         baseTables.forEach { (dataset, table, _) ->
             log.info { "Base load for dataset $dataset, table $table, date $targetDate" }
             fetchAndSend(targetDate, dataset, table)
             application.hasPostedToday = true
         }
 
-        // 🔹 phase 2 — aggregates
         aggregateTables.forEach { (dataset, table, _) ->
             log.info { "Aggregate load for dataset $dataset, table $table, date $targetDate" }
             fetchAndSend(targetDate, dataset, table)

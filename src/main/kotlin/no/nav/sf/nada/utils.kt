@@ -99,6 +99,7 @@ fun String.whereConnector() =
 fun String.addDateRestriction(
     localDate: LocalDate,
     dateFields: List<Pair<String, SupportedType>>,
+    includeAllAfter: Boolean = false,
 ): String {
     require(dateFields.isNotEmpty()) { "At least one date field must be provided" }
 
@@ -106,7 +107,7 @@ fun String.addDateRestriction(
         dateFields.joinToString(" OR ") { (field, type) ->
             val today = formatDate(localDate, type)
             val tomorrow = formatDate(localDate.plusDays(1), type)
-            "($field >= $today AND $field < $tomorrow)"
+            if (includeAllAfter) "$field >= $today" else "($field >= $today AND $field < $tomorrow)"
         }
 
     return "$this${whereConnector()}($clause)"
