@@ -139,6 +139,7 @@ fun doAggregateQuery(
             .replace(SOURCE_TOKEN, aggregateSource)
             .replace(THIS_TOKEN, "${tableId.project}.${tableId.dataset}.${tableId.table}")
 
+    File("/tmp/latestAggregateQuery").writeText(queryEval)
     val job =
         bigQuery.create(
             JobInfo.of(QueryJobConfiguration.newBuilder(queryEval).build()),
