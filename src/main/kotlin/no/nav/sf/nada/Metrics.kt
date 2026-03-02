@@ -21,6 +21,8 @@ object Metrics {
 
     val productsSent: Counter = registerLabelCounter("products_sent", "table")
 
+    val aggregatesSuccessful: Counter = registerLabelCounter("aggregates_successful", "table")
+
     val productsQueryFailed: Counter = registerLabelCounter("products_query_failed", "table")
 
     val latestTotalFromTestCall: Gauge = registerLabelGauge("latest_total_from_test", "table")

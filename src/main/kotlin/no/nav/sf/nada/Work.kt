@@ -158,6 +158,7 @@ fun doAggregateQuery(
     if (job.status.error != null) {
         throw RuntimeException("Aggregate failed: ${job.status.error} - queryEval: $queryEval")
     }
+    Metrics.aggregatesSuccessful.labels(tableId.table).inc()
     log.info("Aggregate successful")
 }
 
@@ -396,11 +397,8 @@ fun mergeStagingIntoTargetWithRetry(
                 throw RuntimeException("Merge failed: ${job.status.error}")
             }
 
-            val stats = job.getStatistics<JobStatistics.QueryStatistics>()
-
             log.info("Merge to ${staging.stagingTarget()} on unique keys $keys successful")
 
-            // Success
             return
         } catch (e: BigQueryException) {
             val msg = e.message ?: ""
@@ -416,149 +414,4 @@ fun mergeStagingIntoTargetWithRetry(
     }
 
     throw RuntimeException("Merge failed after $maxRetries retries due to streaming buffer")
-}
-
-fun makeDailyAggregate(targetDate: LocalDate) {
-    val bigQuery = application.bigQueryService
-
-    // Format date for BigQuery
-    val dateStr = targetDate.toString() // e.g., "2026-02-18"
-
-    // Daily aggregation query with "ALL" network row
-    val query =
-        """
-        INSERT INTO `platforce-prod-296b.license.community-user-login-daily`
-        (date, networkId, networkName, logins, uniqueUsers)
-
-        WITH per_network AS (
-            SELECT
-                DATE(loginAt) AS date,
-                networkId,
-                COUNT(id) AS logins,
-                COUNT(DISTINCT userId) AS uniqueUsers
-            FROM `platforce-prod-296b.license.community-user-login-v2`
-            WHERE DATE(loginAt) = '$dateStr'
-            GROUP BY networkId, DATE(loginAt)
-        ),
-        all_network AS (
-            SELECT
-                DATE(loginAt) AS date,
-                'ALL' AS networkId,
-                COUNT(id) AS logins,
-                COUNT(DISTINCT userId) AS uniqueUsers
-            FROM `platforce-prod-296b.license.community-user-login-v2`
-            WHERE DATE(loginAt) = '$dateStr'
-            GROUP BY DATE(loginAt)
-        ),
-        combined AS (
-            SELECT * FROM per_network
-            UNION ALL
-            SELECT * FROM all_network
-        )
-
-        SELECT
-            date,
-            networkId,
-            CASE networkId
-                WHEN '0DB2o000000PCSHGA4' THEN 'Tolketjenesten'
-                WHEN '0DB2o000000Ug64GAC' THEN 'Kurs'
-                WHEN '0DB2o000000Ug69GAC' THEN 'nks'
-                WHEN '0DB2o000000Ug6iGAC' THEN 'Aa-registeret'
-                WHEN '0DB2o000000Ug9DGAS' THEN 'Innboks'
-                WHEN '0DB2o000000Ug9IGAS' THEN 'Jobbsporet'
-                WHEN '0DB7U0000004C9mWAE' THEN 'lesehjelp'
-                WHEN '0DB7U0000004C9rWAE' THEN 'lesehjelpAura'
-                WHEN '0DB7U0000004C9wWAE' THEN 'Kontaktskjema'
-                WHEN '0DB7U0000008OIUWA2' THEN 'Tilbakemelding'
-                WHEN '0DB7U0000008OIZWA2' THEN 'TilbakemeldingAura'
-                WHEN '0DB7U000000TN3uWAG' THEN 'Arbeidsgiver Dialog'
-                WHEN '0DB7U000000fxSzWAI' THEN 'innholdsbibliotek'
-                WHEN 'ALL' THEN 'Sum'
-                ELSE 'UKJENT'
-            END AS networkName,
-            logins,
-            uniqueUsers
-        FROM combined
-        """.trimIndent()
-
-    val job =
-        bigQuery.create(
-            JobInfo.of(QueryJobConfiguration.newBuilder(query).build()),
-        )
-    job.waitFor()
-
-    if (job.status.error != null) {
-        throw RuntimeException("Daily aggregate failed: ${job.status.error}")
-    }
-    log.info("Daily aggregate successful")
-}
-
-fun makeHourlyAggregate(targetDate: LocalDate) {
-    val bigQuery = application.bigQueryService
-
-    val dateStr = targetDate.toString()
-
-    // Hourly aggregation query (login count per network per hour)
-    val query =
-        """
-        INSERT INTO `platforce-prod-296b.license.community-user-login-hourly`
-        (date, networkId, networkName, hour, logins)
-
-        WITH combined AS (
-            SELECT
-                DATE(loginAt) AS date,
-                networkId,
-                EXTRACT(HOUR FROM loginAt) AS hour,
-                COUNT(id) AS logins
-            FROM `platforce-prod-296b.license.community-user-login-v2`
-            WHERE DATE(loginAt) = '$dateStr'
-            GROUP BY networkId, DATE(loginAt), hour
-
-            UNION ALL
-
-            SELECT
-                DATE(loginAt) AS date,
-                'ALL' AS networkId,
-                EXTRACT(HOUR FROM loginAt) AS hour,
-                COUNT(id) AS logins
-            FROM `platforce-prod-296b.license.community-user-login-v2`
-            WHERE DATE(loginAt) = '$dateStr'
-            GROUP BY DATE(loginAt), hour
-        )
-
-        SELECT
-            date,
-            networkId,
-            CASE networkId
-                WHEN '0DB2o000000PCSHGA4' THEN 'Tolketjenesten'
-                WHEN '0DB2o000000Ug64GAC' THEN 'Kurs'
-                WHEN '0DB2o000000Ug69GAC' THEN 'nks'
-                WHEN '0DB2o000000Ug6iGAC' THEN 'Aa-registeret'
-                WHEN '0DB2o000000Ug9DGAS' THEN 'Innboks'
-                WHEN '0DB2o000000Ug9IGAS' THEN 'Jobbsporet'
-                WHEN '0DB7U0000004C9mWAE' THEN 'lesehjelp'
-                WHEN '0DB7U0000004C9rWAE' THEN 'lesehjelpAura'
-                WHEN '0DB7U0000004C9wWAE' THEN 'Kontaktskjema'
-                WHEN '0DB7U0000008OIUWA2' THEN 'Tilbakemelding'
-                WHEN '0DB7U0000008OIZWA2' THEN 'TilbakemeldingAura'
-                WHEN '0DB7U000000TN3uWAG' THEN 'Arbeidsgiver Dialog'
-                WHEN '0DB7U000000fxSzWAI' THEN 'innholdsbibliotek'
-                WHEN 'ALL' THEN 'Sum'
-                ELSE 'UKJENT'
-            END AS networkName,
-            hour,
-            logins
-        FROM combined
-        """.trimIndent()
-
-    val job =
-        bigQuery.create(
-            JobInfo.of(QueryJobConfiguration.newBuilder(query).build()),
-        )
-    job.waitFor()
-
-    if (job.status.error != null) {
-        throw RuntimeException("Hourly aggregate failed: ${job.status.error}")
-    }
-    log.info("Hourly aggregate successful")
 }
