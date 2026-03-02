@@ -28,7 +28,7 @@ application {
 }
 
 dependencies {
-    implementation platform('com.google.cloud:libraries-bom:26.71.0')
+    implementation platform('com.google.cloud:libraries-bom:26.76.0')
     implementation 'com.google.cloud:google-cloud-bigquery'
     implementation 'io.grpc:grpc-netty-shaded:1.75.0'
 
@@ -44,7 +44,7 @@ dependencies {
 
     implementation "io.github.microutils:kotlin-logging:3.0.5"
     implementation "ch.qos.logback:logback-classic:1.5.25"
-    implementation "net.logstash.logback:logstash-logback-encoder:8.1"
+    implementation "net.logstash.logback:logstash-logback-encoder:9.0"
 
     implementation "io.prometheus:simpleclient_common:0.8.1"
     implementation "io.prometheus:simpleclient_hotspot:0.8.1"
