@@ -147,6 +147,7 @@ object Gui {
         val timeSliceFields: String = "LastModifiedDate",
         val mergeKeys: String = "",
         val aggregateSource: String = "",
+        val fullHistoryCopy: Boolean = false,
         val active: Boolean = true,
         val operationInfo: OperationInfo,
     )
@@ -223,6 +224,8 @@ object Gui {
                     val mergeKeys = mapDef[datasetName]?.get(tableName)?.mergeKeys ?: listOf()
 
                     val aggregateSource = mapDef[datasetName]?.get(tableName)?.aggregateSource ?: ""
+
+                    val fullHistoryCopy = mapDef[datasetName]?.get(tableName)?.fullHistoryCopy ?: false
 
                     val selectFields = extractFields(tableQuery)
 
@@ -320,6 +323,7 @@ object Gui {
                             timeSliceFields = timeSliceFields.joinToString(","),
                             mergeKeys = mergeKeys.joinToString(","),
                             aggregateSource = aggregateSource,
+                            fullHistoryCopy = fullHistoryCopy,
                             active = application.postToBigQuery && !(application.excludeTables.any { it == tableName }),
                             operationInfo = BulkOperation.operationInfo[datasetName]?.get(tableName) ?: OperationInfo(),
                         )

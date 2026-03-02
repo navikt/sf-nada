@@ -19,6 +19,7 @@ data class TableDef(
     val timeSliceFields: List<Pair<String, SupportedType>> = listOf(Pair("LastModifiedDate", SupportedType.DATETIME)),
     val mergeKeys: List<String> = listOf(),
     val aggregateSource: String? = null,
+    val fullHistoryCopy: Boolean = false,
 )
 
 fun parseMapDef(filePath: String): Map<String, Map<String, TableDef>> =
@@ -43,6 +44,7 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
                     ?.map { it.trim() } ?: listOf()
 
             val aggregateSource = objT["aggregateSource"]?.asString
+            val fullHistoryCopy = objT["fullHistoryCopy"]?.asBoolean ?: false
 
             val schema: MutableMap<String, FieldDef> = mutableMapOf()
 
@@ -67,6 +69,7 @@ fun parseMapDef(obj: JsonObject): Map<String, Map<String, TableDef>> {
                     timeSliceFields = timeSliceFields,
                     mergeKeys = mergeKeys,
                     aggregateSource = aggregateSource,
+                    fullHistoryCopy = fullHistoryCopy,
                 )
         }
     }

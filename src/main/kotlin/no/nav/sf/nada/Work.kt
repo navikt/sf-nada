@@ -49,11 +49,14 @@ fun fetchAndSend(
 
     val aggregateSource = application.mapDef[dataset]!![table]!!.aggregateSource
 
+    val fullHistoryCopy = application.mapDef[dataset]!![table]!!.fullHistoryCopy
+
     val tableId = TableId.of(application.projectId, dataset, table)
 
     val query =
         application.mapDef[dataset]!![table]!!.query.let { q ->
-            if (targetDate == null || aggregateSource != null) {
+            // Note in case of aggregateSource this is a bigQuery template query and has date restriction baked in another way
+            if (targetDate == null || aggregateSource != null || fullHistoryCopy) {
                 q
             } else {
                 q.addDateRestriction(
@@ -69,7 +72,11 @@ fun fetchAndSend(
         log.info { "Will use aggregate query: $query" }
         doAggregateQuery(targetDate!!, aggregateSource, query, tableId)
     } else {
-        log.info { "Will use fetch query: $query" }
+        if (fullHistoryCopy) {
+            log.info { "Will do full history copy, using fetch query: $query" }
+        } else {
+            log.info { "Will use fetch query: $query" }
+        }
         val schema = application.mapDef[dataset]!![table]!!.schema
 
         Metrics.fetchRequest.inc()
@@ -94,7 +101,7 @@ fun fetchAndSend(
         log.info { "QUERY RESULT overview - totalSize $totalSize, done $done, nextRecordsUrl $nextRecordsUrl" }
         Metrics.productsRead.labels(table).inc(totalSize.toDouble())
 
-        if (tableId.isStaging()) {
+        if (tableId.isStaging() || fullHistoryCopy) {
             truncateTable(tableId)
         }
 

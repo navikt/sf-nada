@@ -1,6 +1,6 @@
 {
   "license": {
-    "active-feature-license-staging": {
+    "active-feature-license": {
       "query": "SELECT Id, Assignee.CRM_NAV_Ident__c, PermissionSetLicense.MasterLabel, Assignee.Profile.UserLicense.Name, Assignee.LastLoginDate FROM PermissionSetLicenseAssign WHERE Assignee.IsActive = true AND Assignee.Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND Assignee.CRM_NAV_Ident__c != null",
       "schema": {
         "Id": {
@@ -24,7 +24,7 @@
           "type": "DATETIME"
         }
       },
-      "mergeKeys" : "navIdent,licenseName"
+      "fullHistoryCopy": true
     },
     "active-feature-license-metric": {
       "query": "SELECT Id, ActiveUserCount,AssignedUserCount,FeatureType,MetricsDate,TotalLicenseCount FROM ActiveFeatureLicenseMetric",
@@ -90,7 +90,7 @@
       },
       "timeSliceFields": "MetricsDate"
     },
-    "active-salesforce-user-v2-staging": {
+    "active-salesforce-user-v2": {
       "query": "SELECT Id, CRM_NAV_Ident__c, LastLoginDate, Profile.Name, Profile.UserLicense.Name, UserPermissionsAvantgoUser, UserPermissionsCallCenterAutoLogin, UserPermissionsInteractionUser, UserPermissionsKnowledgeUser, UserPermissionsLiveAgentUser, UserPermissionsMarketingUser, UserPermissionsOfflineUser, UserPermissionsSFContentUser, UserPermissionsSupportUser FROM User WHERE IsActive = true AND Profile.UserLicense.Name IN ('Salesforce', 'Salesforce Platform', 'Customer Community Plus') AND CRM_NAV_Ident__c != null",
       "schema": {
         "Id": {
@@ -151,7 +151,7 @@
         }
       },
       "timeSliceFields": "LastModifiedDate,LastLoginDate",
-      "mergeKeys" : "navIdent"
+      "fullHistoryCopy": true
     },
     "community-user-login-v2": {
       "query": "SELECT Id, LoginTime, NetworkId, UserId FROM LoginHistory WHERE NetworkId != Null",

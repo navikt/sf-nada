@@ -99,6 +99,16 @@ body {
     font-size: 10px;
 }
 
+.full-label {
+    font-family: Arial, sans-serif;
+    background-color: #e8d1bf; /* different background */
+    color: #dc9956;           /* different text color */
+    padding: 4px 5px;
+    border-radius: 5px;
+    margin-left: 10px; /* same spacing */
+    font-size: 10px;
+}
+
 .inactive-label:hover {
     color: #6c703b;
 }

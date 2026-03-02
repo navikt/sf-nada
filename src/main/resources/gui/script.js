@@ -124,6 +124,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     nameAndLabelWrapper.appendChild(aggregateLabel);
                 }
 
+                if (table.fullHistoryCopy === true) {
+                    const fullHistoryCopyLabel = document.createElement("div");
+                    fullHistoryCopyLabel.textContent = 'FULL HISTORY COPY';
+                    fullHistoryCopyLabel.classList.add('full-label'); // create CSS similar to inactive-label
+                    fullHistoryCopyLabel.title = "This table will be truncated and populated with query without date restrictions each morning";
+                    nameAndLabelWrapper.appendChild(fullHistoryCopyLabel);
+                }
+
                 // Create a separate div for the row count
                 const rowCountDiv = document.createElement("div");
                 rowCountDiv.classList.add("row-count");
