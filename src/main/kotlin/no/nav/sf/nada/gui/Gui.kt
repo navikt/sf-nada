@@ -206,9 +206,9 @@ object Gui {
                 if (definition is StandardTableDefinition) {
                     val tableName = table.tableId.table
 
-                    // Skip base table if a staging version exists
+                    // Skip base table if a configured staging version exists
                     if (!tableName.endsWith("-staging") &&
-                        tableNames.contains("$tableName-staging")
+                        tableNames.contains("$tableName-staging") && mapDef[datasetName]?.get(tableName)?.query != null
                     ) {
                         log.info("Metadata for GUI: $tableName has a staging counterpart - will ignore")
                         continue
