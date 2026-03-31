@@ -1,6 +1,10 @@
 name: Configure and run workflow
 
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      - 'chore/**'
+  pull_request:
 
 jobs:
   build-deploy:
