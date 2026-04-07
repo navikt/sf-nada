@@ -126,14 +126,6 @@ fun fetchAndSend(
                 keys = mergeKeys,
             )
         }
-
-//        if (tableId.table == "community-user-login-v2" && targetDate != null) {
-//            log.info(
-//                "Post streaming raw data for community-user-login-v2 ($totalSize records), will attempt inserting into daily and hourly aggregate tables",
-//            )
-//            makeDailyAggregate(targetDate)
-//            makeHourlyAggregate(targetDate)
-//        }
     }
 }
 
