@@ -5,6 +5,9 @@ spec:
     bigQueryDatasets:
       - name: license
         permission: READWRITE
+  envFrom:
+    - configmap: salesforce-common
+    - secret: sf-nada-preprod
   env:
     - name: POST_TO_BIGQUERY
       value: 'false'

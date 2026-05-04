@@ -6,10 +6,13 @@ import mu.KotlinLogging
 import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.bulk.BulkOperation
 import no.nav.sf.nada.gui.Gui
+import no.nav.sf.nada.token.AccessTokenHandlerLegacy
+import no.nav.sf.nada.token.NewAccessTokenHandler
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Response
 import org.http4k.core.Status
+import org.http4k.core.Status.Companion.OK
 import org.http4k.routing.ResourceLoader
 import org.http4k.routing.bind
 import org.http4k.routing.routes
@@ -48,22 +51,25 @@ class Application {
 
     private fun api(): HttpHandler =
         routes(
-            "/internal/isAlive" bind Method.GET to { Response(Status.OK) },
-            "/internal/isReady" bind Method.GET to { Response(Status.OK) },
+            "/internal/isAlive" bind Method.GET to { Response(OK) },
+            "/internal/isReady" bind Method.GET to { Response(OK) },
             "/internal/metrics" bind Method.GET to Metrics.metricsHandler,
             "/internal/gui" bind Method.GET to static(ResourceLoader.Classpath("gui")),
             "/internal/metadata" bind Method.GET to Gui.metaDataHandler,
             "/internal/testSalesforceQuery" bind Method.GET to Gui.testCallHandler,
-            "/internal/projectId" bind Method.GET to { Response(Status.OK).body(application.projectId) },
+            "/internal/projectId" bind Method.GET to { Response(OK).body(application.projectId) },
             "/internal/performBulk" bind Method.GET to BulkOperation.performBulkHandler,
             "/internal/transfer" bind Method.GET to BulkOperation.transferHandler,
             "/internal/reset" bind Method.GET to BulkOperation.resetHandler,
             "/internal/storeExpectedCount" bind Method.GET to BulkOperation.storeExpectedCountHandler,
             "/internal/predictQueries" bind Method.GET to {
-                Response(Status.OK)
+                Response(OK)
                     .header("Content-Type", "text/plain; charset=utf-8")
                     .body(predictQueriesForWork())
             },
+            "/internal/testAccess/old" bind Method.GET to testAccessHandlerOld,
+            "/internal/testAccess/new" bind Method.GET to testAccessHandlerNew,
+            "/internal/testAccess/validation" bind Method.GET to testAccessHandlerValidation,
         )
 
     private fun apiServer(port: Int = 8080) = api().asServer(Netty(port))
@@ -139,4 +145,18 @@ class Application {
     private fun LocalTime.inResetRange(): Boolean = this.isAfter(resetRangeStart) && this.isBefore(resetRangeStop)
 
     private fun LocalTime.inActiveRange(): Boolean = this.isAfter(resetRangeStop)
+}
+
+private val testAccessHandlerOld: HttpHandler = {
+    Response(OK).body("Test access (old) successful: " + AccessTokenHandlerLegacy.testAccess())
+}
+
+private val testAccessHandlerNew: HttpHandler = {
+    val newAccessTokenHandler = NewAccessTokenHandler()
+    Response(OK).body("Test access (new) successful: " + newAccessTokenHandler.testAccess())
+}
+
+private val testAccessHandlerValidation: HttpHandler = {
+    val newAccessTokenHandlerAgainstValidation = NewAccessTokenHandler(sfClientId = env(secret_SF_VALIDATION_CLIENT_ID))
+    Response(OK).body("Test access (validation) successful: " + newAccessTokenHandlerAgainstValidation.testAccess())
 }

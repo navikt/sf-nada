@@ -7,7 +7,6 @@ import com.google.cloud.bigquery.TableDefinition
 import com.google.cloud.bigquery.TableId
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import io.opencensus.stats.Aggregation
 import mu.KotlinLogging
 import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.Metrics
@@ -21,7 +20,7 @@ import no.nav.sf.nada.bulk.OperationInfo
 import no.nav.sf.nada.gson
 import no.nav.sf.nada.isStaging
 import no.nav.sf.nada.stagingTarget
-import no.nav.sf.nada.token.AccessTokenHandler
+import no.nav.sf.nada.token.AccessTokenHandlerLegacy
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
@@ -85,7 +84,7 @@ object Gui {
         val responseTotal = doSFQuery(query.addHistoryLimitOnlyOneDateField(5, timeSliceFields))
 
         File("/tmp/responseLast5Call").writeText(
-            "Query: ${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimitOnlyOneDateField(
+            "Query: ${AccessTokenHandlerLegacy.instanceUrl}${application.sfQueryBase}${query.addHistoryLimitOnlyOneDateField(
                 5,
                 timeSliceFields,
             )}\nRESPONSE:\n" +

@@ -1,6 +1,6 @@
 package no.nav.sf.nada
 
-import no.nav.sf.nada.token.AccessTokenHandler
+import no.nav.sf.nada.token.AccessTokenHandlerLegacy
 import org.http4k.client.OkHttp
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -11,12 +11,13 @@ import java.io.File
 object HttpCalls {
     private val client = lazy { OkHttp() }
 
-    fun doSFQuery(query: String) = doCallWithSFToken("${AccessTokenHandler.instanceUrl}${application.sfQueryBase}${query.urlEncoded()}")
+    fun doSFQuery(query: String) =
+        doCallWithSFToken("${AccessTokenHandlerLegacy.instanceUrl}${application.sfQueryBase}${query.urlEncoded()}")
 
     fun doCallWithSFToken(uri: String): Response {
         val request =
             Request(Method.GET, uri)
-                .header("Authorization", "Bearer ${AccessTokenHandler.accessToken}")
+                .header("Authorization", "Bearer ${AccessTokenHandlerLegacy.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
         File("/tmp/queryToHappen").writeText(request.toMessage())
         val response = client.value(request)
@@ -40,8 +41,8 @@ object HttpCalls {
     ): Response {
         val query = queryToUseForBulkQuery(dataset, table)
         val request =
-            Request(Method.POST, "${AccessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query")
-                .header("Authorization", "Bearer ${AccessTokenHandler.accessToken}")
+            Request(Method.POST, "${AccessTokenHandlerLegacy.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query")
+                .header("Authorization", "Bearer ${AccessTokenHandlerLegacy.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
                 .body(
                     """{
@@ -59,8 +60,8 @@ object HttpCalls {
 
     fun doSFBulkJobStatusQuery(jobId: String): Response {
         val request =
-            Request(Method.GET, "${AccessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query/$jobId")
-                .header("Authorization", "Bearer ${AccessTokenHandler.accessToken}")
+            Request(Method.GET, "${AccessTokenHandlerLegacy.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query/$jobId")
+                .header("Authorization", "Bearer ${AccessTokenHandlerLegacy.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
         File("/tmp/bulkJobStatusQueryToHappen").writeText(request.toMessage())
         val response = client.value(request)
@@ -75,10 +76,10 @@ object HttpCalls {
         val request =
             Request(
                 Method.GET,
-                "${AccessTokenHandler.instanceUrl}/services/data/${env(
+                "${AccessTokenHandlerLegacy.instanceUrl}/services/data/${env(
                     config_SALESFORCE_VERSION,
                 )}/jobs/query/$jobId/results${locator?.let{"?locator=$locator"} ?: ""}",
-            ).header("Authorization", "Bearer ${AccessTokenHandler.accessToken}")
+            ).header("Authorization", "Bearer ${AccessTokenHandlerLegacy.accessToken}")
 
         val response = client.value(request)
         File("/tmp/bulkJobResultResponse${locator?.let{"-$locator"} ?: ""}").writeText(response.toMessage())

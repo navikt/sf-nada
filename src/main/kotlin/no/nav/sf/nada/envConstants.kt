@@ -20,6 +20,17 @@ const val secret_KeystorePassword = "KeystorePassword"
 const val secret_PrivateKeyAlias = "PrivateKeyAlias"
 const val secret_PrivateKeyPassword = "PrivateKeyPassword"
 
+// New access secrets/config:
+const val config_SALESFORCE_API_VERSION = "SALESFORCE_API_VERSION"
+const val config_SF_TOKEN_HOST = "SF_TOKEN_HOST"
+const val config_SF_JWT_USERNAME = "SF_JWT_USERNAME"
+
+const val secret_SF_JWT_CLIENT_ID = "SF_JWT_CLIENT_ID"
+const val secret_SF_JWT_KEYSTORE_B64 = "SF_JWT_KEYSTORE_B64"
+const val secret_SF_JWT_KEYSTORE_PASSWORD = "SF_JWT_KEYSTORE_PASSWORD"
+
+const val secret_SF_VALIDATION_CLIENT_ID = "SF_VALIDATION_CLIENT_ID"
+
 fun env(name: String): String = System.getenv(name) ?: throw NullPointerException("Missing env $name")
 
 fun envAsBoolean(env: String): Boolean = System.getenv(env).trim().toBoolean()

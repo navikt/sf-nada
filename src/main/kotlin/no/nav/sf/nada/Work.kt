@@ -4,7 +4,6 @@ import com.google.cloud.bigquery.BigQuery
 import com.google.cloud.bigquery.BigQueryException
 import com.google.cloud.bigquery.InsertAllRequest
 import com.google.cloud.bigquery.JobInfo
-import com.google.cloud.bigquery.JobStatistics
 import com.google.cloud.bigquery.QueryJobConfiguration
 import com.google.cloud.bigquery.StandardTableDefinition
 import com.google.cloud.bigquery.TableDefinition
@@ -19,7 +18,7 @@ import mu.KotlinLogging
 import no.nav.sf.nada.HttpCalls.doCallWithSFToken
 import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.bulk.BulkOperation
-import no.nav.sf.nada.token.AccessTokenHandler
+import no.nav.sf.nada.token.AccessTokenHandlerLegacy
 import org.http4k.core.Response
 import java.io.File
 import java.lang.IllegalStateException
@@ -109,7 +108,7 @@ fun fetchAndSend(
             var records = obj["records"].asJsonArray
             remapAndSendRecords(records, tableId, schema)
             while (!done) {
-                response = doCallWithSFToken("${AccessTokenHandler.instanceUrl}$nextRecordsUrl")
+                response = doCallWithSFToken("${AccessTokenHandlerLegacy.instanceUrl}$nextRecordsUrl")
                 obj = JsonParser.parseString(response.bodyString()) as JsonObject
                 done = obj["done"].asBoolean
                 nextRecordsUrl = obj["nextRecordsUrl"]?.asString
