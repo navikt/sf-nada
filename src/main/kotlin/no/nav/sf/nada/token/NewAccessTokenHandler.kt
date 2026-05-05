@@ -14,6 +14,7 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
 import org.http4k.core.body.toBody
+import java.io.File
 import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.Signature
@@ -68,6 +69,9 @@ class NewAccessTokenHandler(
                 )
 
         val response = client(request)
+        if (ignoreCache) {
+            File("/tmp/testAccessToken").writeText("REQUEST:\n${request.toMessage()}\n\nRESPONSE:\n${response.toMessage()}")
+        }
         if (response.status != Status.OK) {
             throw IllegalStateException(
                 "Salesforce token request failed: ${response.status}\n${response.bodyString()}",
