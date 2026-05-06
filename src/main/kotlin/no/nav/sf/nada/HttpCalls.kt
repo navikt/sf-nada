@@ -60,8 +60,10 @@ object HttpCalls {
 
     fun doSFBulkJobStatusQuery(jobId: String): Response {
         val request =
-            Request(Method.GET, "${application.accessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query/$jobId")
-                .header("Authorization", "Bearer ${application.accessTokenHandler.accessToken}")
+            Request(
+                Method.GET,
+                "${application.accessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query/$jobId",
+            ).header("Authorization", "Bearer ${application.accessTokenHandler.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
         File("/tmp/bulkJobStatusQueryToHappen").writeText(request.toMessage())
         val response = client.value(request)
