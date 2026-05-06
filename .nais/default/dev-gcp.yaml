@@ -35,6 +35,8 @@ spec:
       cpu: 10m
       memory: 1Gi
   envFrom:
+    - configmap: salesforce-common
+    - secret: migration-preprod
     - secret: sf-nada-preprod
   accessPolicy:
     outbound:
@@ -46,7 +48,5 @@ spec:
       value: '/mapdef/replace-with-namespace/dev.json'
     - name: SF_TOKENHOST
       value: 'https://test.salesforce.com'
-    - name: SALESFORCE_VERSION
-      value: 'v65.0'
     - name: DEPLOY_CLUSTER
       value: '{{ DEPLOY_CLUSTER }}'
