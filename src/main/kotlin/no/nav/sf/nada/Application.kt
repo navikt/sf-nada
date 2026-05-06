@@ -36,7 +36,7 @@ class Application {
 
     val projectId = env(env_GCP_TEAM_PROJECT_ID)
 
-    val sfQueryBase = "/services/data/${env(config_SALESFORCE_VERSION)}/query?q="
+    val sfQueryBase = "/services/data/${env(config_SALESFORCE_API_VERSION)}/query?q="
 
     val mapDef = parseMapDef(env(config_MAPDEF_FILE))
 
@@ -71,6 +71,8 @@ class Application {
                     .header("Content-Type", "text/plain; charset=utf-8")
                     .body(predictQueriesForWork())
             },
+            "/internal/user" bind Method.GET to { Response(OK).body(env(config_SF_JWT_USERNAME)) },
+            "/internal/version" bind Method.GET to { Response(OK).body(env(config_SALESFORCE_API_VERSION)) },
             "/internal/testAccess/old" bind Method.GET to testAccessHandlerOld,
             "/internal/testAccess/new" bind Method.GET to testAccessHandlerNew,
             "/internal/testAccess/validation" bind Method.GET to testAccessHandlerValidation,

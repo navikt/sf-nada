@@ -5,8 +5,9 @@ package no.nav.sf.nada
 const val config_MAPDEF_FILE = "MAPDEF_FILE"
 const val config_POST_TO_BIGQUERY = "POST_TO_BIGQUERY"
 const val config_EXCLUDE_TABLES = "EXCLUDE_TABLES"
+
+// deprecated:
 const val config_SF_TOKENHOST = "SF_TOKENHOST"
-const val config_SALESFORCE_VERSION = "SALESFORCE_VERSION"
 
 const val env_GCP_TEAM_PROJECT_ID = "GCP_TEAM_PROJECT_ID"
 

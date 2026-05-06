@@ -41,8 +41,10 @@ object HttpCalls {
     ): Response {
         val query = queryToUseForBulkQuery(dataset, table)
         val request =
-            Request(Method.POST, "${application.accessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query")
-                .header("Authorization", "Bearer ${application.accessTokenHandler.accessToken}")
+            Request(
+                Method.POST,
+                "${application.accessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_API_VERSION)}/jobs/query",
+            ).header("Authorization", "Bearer ${application.accessTokenHandler.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
                 .body(
                     """{
@@ -62,7 +64,7 @@ object HttpCalls {
         val request =
             Request(
                 Method.GET,
-                "${application.accessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query/$jobId",
+                "${application.accessTokenHandler.instanceUrl}/services/data/${env(config_SALESFORCE_API_VERSION)}/jobs/query/$jobId",
             ).header("Authorization", "Bearer ${application.accessTokenHandler.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
         File("/tmp/bulkJobStatusQueryToHappen").writeText(request.toMessage())
@@ -79,7 +81,7 @@ object HttpCalls {
             Request(
                 Method.GET,
                 "${application.accessTokenHandler.instanceUrl}/services/data/${env(
-                    config_SALESFORCE_VERSION,
+                    config_SALESFORCE_API_VERSION,
                 )}/jobs/query/$jobId/results${locator?.let{"?locator=$locator"} ?: ""}",
             ).header("Authorization", "Bearer ${application.accessTokenHandler.accessToken}")
 
