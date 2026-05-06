@@ -108,7 +108,7 @@ fun fetchAndSend(
             var records = obj["records"].asJsonArray
             remapAndSendRecords(records, tableId, schema)
             while (!done) {
-                response = doCallWithSFToken("${AccessTokenHandlerLegacy.instanceUrl}$nextRecordsUrl")
+                response = doCallWithSFToken("${application.accessTokenHandler.instanceUrl}$nextRecordsUrl")
                 obj = JsonParser.parseString(response.bodyString()) as JsonObject
                 done = obj["done"].asBoolean
                 nextRecordsUrl = obj["nextRecordsUrl"]?.asString

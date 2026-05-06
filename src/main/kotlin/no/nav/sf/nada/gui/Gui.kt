@@ -84,7 +84,7 @@ object Gui {
         val responseTotal = doSFQuery(query.addHistoryLimitOnlyOneDateField(5, timeSliceFields))
 
         File("/tmp/responseLast5Call").writeText(
-            "Query: ${AccessTokenHandlerLegacy.instanceUrl}${application.sfQueryBase}${query.addHistoryLimitOnlyOneDateField(
+            "Query: ${application.accessTokenHandler.instanceUrl}${application.sfQueryBase}${query.addHistoryLimitOnlyOneDateField(
                 5,
                 timeSliceFields,
             )}\nRESPONSE:\n" +
