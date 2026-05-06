@@ -7,6 +7,7 @@ import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.bulk.BulkOperation
 import no.nav.sf.nada.gui.Gui
 import no.nav.sf.nada.token.AccessTokenHandlerLegacy
+import no.nav.sf.nada.token.MigratingAccessTokenHandler
 import no.nav.sf.nada.token.NewAccessTokenHandler
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
@@ -70,6 +71,7 @@ class Application {
             "/internal/testAccess/old" bind Method.GET to testAccessHandlerOld,
             "/internal/testAccess/new" bind Method.GET to testAccessHandlerNew,
             "/internal/testAccess/validation" bind Method.GET to testAccessHandlerValidation,
+            "/internal/testAccess/migration" bind Method.GET to testAccessHandlerMigration,
             "/internal/files" bind Method.GET to filesHandler(File("/tmp/files")),
             "/internal/files/{path:.*}" bind Method.GET to filesHandler(File("/tmp/files")),
         )
@@ -165,6 +167,12 @@ private val testAccessHandlerNew: HttpHandler = {
 private val testAccessHandlerValidation: HttpHandler = {
     val newAccessTokenHandlerAgainstValidation = NewAccessTokenHandler(sfClientId = env(secret_SF_VALIDATION_CLIENT_ID))
     Response(OK).body("Test access (validation) successful: " + newAccessTokenHandlerAgainstValidation.testAccess())
+}
+
+private val testAccessHandlerMigration: HttpHandler = {
+    val migrationTokenHandler =
+        MigratingAccessTokenHandler(new = NewAccessTokenHandler())
+    Response(OK).body("Test access (migration) result: " + migrationTokenHandler.testAccess())
 }
 
 private fun filesHandler(baseDir: File): HttpHandler =
