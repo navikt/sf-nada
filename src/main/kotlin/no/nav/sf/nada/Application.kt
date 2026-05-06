@@ -32,7 +32,7 @@ private val resetRangeStop = LocalTime.parse("01:29:00")
 private val log = KotlinLogging.logger { }
 
 class Application {
-    val accessTokenHandler: AccessTokenHandler = MigratingAccessTokenHandler(new = NewAccessTokenHandler())
+    val accessTokenHandler: AccessTokenHandler = NewAccessTokenHandler()
 
     val projectId = env(env_GCP_TEAM_PROJECT_ID)
 

@@ -69,13 +69,6 @@ class NewAccessTokenHandler(
                 )
 
         val response = client(request)
-        if (ignoreCache) {
-            File(
-                "/tmp/files/testAccessToken",
-            ).writeText(
-                "CONFIG:\nusername: $sfUsername\nclientid: $sfClientId\n\nREQUEST:\n${request.toMessage()}\n\nRESPONSE:\n${response.toMessage()}",
-            )
-        }
         if (response.status != Status.OK) {
             throw IllegalStateException(
                 "Salesforce token request failed: ${response.status}\n${response.bodyString()}",
