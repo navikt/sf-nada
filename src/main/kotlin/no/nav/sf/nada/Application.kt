@@ -81,7 +81,10 @@ class Application {
         log.info { "Starting app with settings: projectId $projectId, postTobigQuery $postToBigQuery, excludeTables $excludeTables" }
         apiServer().start()
         log.info { "1 minutes graceful start - establishing connections" }
-        File("/tmp/files/testfile").writeText("Content of test file")
+        val dir = File("/tmp/files")
+        dir.mkdirs() // ensures /tmp/files exists
+
+        File(dir, "testfile").writeText("Content of test file")
         Thread.sleep(60000)
 
 //        val query3 =
