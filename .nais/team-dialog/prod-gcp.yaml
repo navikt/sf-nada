@@ -7,6 +7,10 @@ spec:
         permission: READWRITE
       - name: arbeidsgiver_diverse
         permission: READWRITE
+  envFrom:
+    - configmap: salesforce-common
+    - secret: migration-prod
+    - secret: sf-nada-prod
   env:
     - name: POST_TO_BIGQUERY
       value: 'true'
