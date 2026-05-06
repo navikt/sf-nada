@@ -15,6 +15,7 @@ import org.apache.commons.csv.CSVParser
 import java.io.File
 import java.io.StringReader
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 private val log = KotlinLogging.logger { }
@@ -207,3 +208,5 @@ fun parseCSVToJsonArrays(csvData: String): List<JsonArray> {
 fun TableId.isStaging(): Boolean = this.table.endsWith("-staging")
 
 fun TableId.stagingTarget(): String = this.table.removeSuffix("-staging")
+
+val currentTimeStamp: String get() = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)

@@ -6,6 +6,7 @@ import mu.KotlinLogging
 import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.bulk.BulkOperation
 import no.nav.sf.nada.gui.Gui
+import no.nav.sf.nada.token.AccessTokenHandler
 import no.nav.sf.nada.token.AccessTokenHandlerLegacy
 import no.nav.sf.nada.token.MigratingAccessTokenHandler
 import no.nav.sf.nada.token.NewAccessTokenHandler
@@ -31,6 +32,8 @@ private val resetRangeStop = LocalTime.parse("01:29:00")
 private val log = KotlinLogging.logger { }
 
 class Application {
+    val accessTokenHandler: AccessTokenHandler = MigratingAccessTokenHandler(new = NewAccessTokenHandler())
+
     val projectId = env(env_GCP_TEAM_PROJECT_ID)
 
     val sfQueryBase = "/services/data/${env(config_SALESFORCE_VERSION)}/query?q="
@@ -156,23 +159,23 @@ class Application {
 }
 
 private val testAccessHandlerOld: HttpHandler = {
-    Response(OK).body("Test access (old) successful: " + AccessTokenHandlerLegacy.testAccess())
+    Response(OK).body("$currentTimeStamp\nTest access (old) successful: " + AccessTokenHandlerLegacy.testAccess())
 }
 
 private val testAccessHandlerNew: HttpHandler = {
     val newAccessTokenHandler = NewAccessTokenHandler()
-    Response(OK).body("Test access (new) successful: " + newAccessTokenHandler.testAccess())
+    Response(OK).body("$currentTimeStamp\nTest access (new) successful: " + newAccessTokenHandler.testAccess())
 }
 
 private val testAccessHandlerValidation: HttpHandler = {
     val newAccessTokenHandlerAgainstValidation = NewAccessTokenHandler(sfClientId = env(secret_SF_VALIDATION_CLIENT_ID))
-    Response(OK).body("Test access (validation) successful: " + newAccessTokenHandlerAgainstValidation.testAccess())
+    Response(OK).body("$currentTimeStamp\nTest access (validation) successful: " + newAccessTokenHandlerAgainstValidation.testAccess())
 }
 
 private val testAccessHandlerMigration: HttpHandler = {
     val migrationTokenHandler =
         MigratingAccessTokenHandler(new = NewAccessTokenHandler())
-    Response(OK).body("Test access (migration) result: " + migrationTokenHandler.testAccess())
+    Response(OK).body("$currentTimeStamp\nTest access (migration) result: " + migrationTokenHandler.testAccess())
 }
 
 private fun filesHandler(baseDir: File): HttpHandler =

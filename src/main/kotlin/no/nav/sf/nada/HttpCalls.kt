@@ -17,7 +17,7 @@ object HttpCalls {
     fun doCallWithSFToken(uri: String): Response {
         val request =
             Request(Method.GET, uri)
-                .header("Authorization", "Bearer ${AccessTokenHandlerLegacy.accessToken}")
+                .header("Authorization", "Bearer ${application.accessTokenHandler.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
         File("/tmp/queryToHappen").writeText(request.toMessage())
         val response = client.value(request)
@@ -42,7 +42,7 @@ object HttpCalls {
         val query = queryToUseForBulkQuery(dataset, table)
         val request =
             Request(Method.POST, "${AccessTokenHandlerLegacy.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query")
-                .header("Authorization", "Bearer ${AccessTokenHandlerLegacy.accessToken}")
+                .header("Authorization", "Bearer ${application.accessTokenHandler.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
                 .body(
                     """{
@@ -61,7 +61,7 @@ object HttpCalls {
     fun doSFBulkJobStatusQuery(jobId: String): Response {
         val request =
             Request(Method.GET, "${AccessTokenHandlerLegacy.instanceUrl}/services/data/${env(config_SALESFORCE_VERSION)}/jobs/query/$jobId")
-                .header("Authorization", "Bearer ${AccessTokenHandlerLegacy.accessToken}")
+                .header("Authorization", "Bearer ${application.accessTokenHandler.accessToken}")
                 .header("Content-Type", "application/json;charset=UTF-8")
         File("/tmp/bulkJobStatusQueryToHappen").writeText(request.toMessage())
         val response = client.value(request)
@@ -79,7 +79,7 @@ object HttpCalls {
                 "${AccessTokenHandlerLegacy.instanceUrl}/services/data/${env(
                     config_SALESFORCE_VERSION,
                 )}/jobs/query/$jobId/results${locator?.let{"?locator=$locator"} ?: ""}",
-            ).header("Authorization", "Bearer ${AccessTokenHandlerLegacy.accessToken}")
+            ).header("Authorization", "Bearer ${application.accessTokenHandler.accessToken}")
 
         val response = client.value(request)
         File("/tmp/bulkJobResultResponse${locator?.let{"-$locator"} ?: ""}").writeText(response.toMessage())
