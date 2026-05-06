@@ -8,13 +8,6 @@ spec:
   envFrom:
     - configmap: salesforce-common
     - secret: sf-nada-preprod
-  sidecars:
-    - name: debug
-      image: busybox
-      command: [ "sh", "-c", "sleep 3600" ]
-      volumeMounts:
-        - name: writable-tmp
-          mountPath: /tmp
   env:
     - name: POST_TO_BIGQUERY
       value: 'false'

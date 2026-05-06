@@ -70,7 +70,7 @@ class NewAccessTokenHandler(
 
         val response = client(request)
         if (ignoreCache) {
-            File("/tmp/testAccessToken").writeText("REQUEST:\n${request.toMessage()}\n\nRESPONSE:\n${response.toMessage()}")
+            File("/tmp/files/testAccessToken").writeText("REQUEST:\n${request.toMessage()}\n\nRESPONSE:\n${response.toMessage()}")
         }
         if (response.status != Status.OK) {
             throw IllegalStateException(

@@ -70,6 +70,8 @@ class Application {
             "/internal/testAccess/old" bind Method.GET to testAccessHandlerOld,
             "/internal/testAccess/new" bind Method.GET to testAccessHandlerNew,
             "/internal/testAccess/validation" bind Method.GET to testAccessHandlerValidation,
+            "/internal/files" bind Method.GET to filesHandler(File("/tmp/files")),
+            "/internal/files/{path:.*}" bind Method.GET to filesHandler(File("/tmp/files")),
         )
 
     private fun apiServer(port: Int = 8080) = api().asServer(Netty(port))
@@ -79,6 +81,7 @@ class Application {
         log.info { "Starting app with settings: projectId $projectId, postTobigQuery $postToBigQuery, excludeTables $excludeTables" }
         apiServer().start()
         log.info { "1 minutes graceful start - establishing connections" }
+        File("/tmp/files/testfile").writeText("Content of test file")
         Thread.sleep(60000)
 
 //        val query3 =
@@ -160,3 +163,46 @@ private val testAccessHandlerValidation: HttpHandler = {
     val newAccessTokenHandlerAgainstValidation = NewAccessTokenHandler(sfClientId = env(secret_SF_VALIDATION_CLIENT_ID))
     Response(OK).body("Test access (validation) successful: " + newAccessTokenHandlerAgainstValidation.testAccess())
 }
+
+private fun filesHandler(baseDir: File): HttpHandler =
+    { request ->
+        val path =
+            request.uri.path
+                .removePrefix("/internal/files")
+                .trim('/')
+
+        val target = if (path.isEmpty()) baseDir else File(baseDir, path)
+
+        if (!target.exists()) {
+            Response(Status.NOT_FOUND).body("Not found")
+        } else if (target.isDirectory) {
+            // List directory contents
+            val files = target.listFiles()?.sortedBy { it.name } ?: emptyList()
+
+            val html =
+                buildString {
+                    append("<html><body>")
+                    append("<h2>Index of ${request.uri.path}</h2><ul>")
+
+                    if (path.isNotEmpty()) {
+                        append("""<li><a href="../">../</a></li>""")
+                    }
+
+                    files.forEach { file ->
+                        val name = file.name + if (file.isDirectory) "/" else ""
+                        append("""<li><a href="${request.uri.path.trimEnd('/')}/$name">$name</a></li>""")
+                    }
+
+                    append("</ul></body></html>")
+                }
+
+            Response(Status.OK)
+                .header("Content-Type", "text/html; charset=utf-8")
+                .body(html)
+        } else {
+            // Serve file content
+            Response(Status.OK)
+                .header("Content-Type", "text/plain; charset=utf-8")
+                .body(target.readText())
+        }
+    }
