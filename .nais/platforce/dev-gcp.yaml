@@ -7,6 +7,7 @@ spec:
         permission: READWRITE
   envFrom:
     - configmap: salesforce-common
+    - secret: migration-preprod
     - secret: sf-nada-preprod
   env:
     - name: POST_TO_BIGQUERY

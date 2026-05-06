@@ -358,13 +358,21 @@ body {
     background-color: #565e64;
 }
 
-.table-header a {
+.table .table-header {
+    cursor: pointer;
+    font-size: 18px;
+    background-color: #3498DB;
     color: white;
-    text-decoration: none;
-    width: 100%;
-    display: block;
+    padding: 10px;
+    border-radius: 5px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    text-decoration: none;   /* remove underline */
 }
 
-.table-header a:hover {
-    text-decoration: underline;
+.table .table-header:hover {
+    background-color: #2980B9;
 }

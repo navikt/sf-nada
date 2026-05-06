@@ -81,7 +81,7 @@ class Application {
         log.info { "Starting app with settings: projectId $projectId, postTobigQuery $postToBigQuery, excludeTables $excludeTables" }
         apiServer().start()
         log.info { "1 minutes graceful start - establishing connections" }
-        val dir = File("/tmp/files")
+        val dir = File("/tmp/files/subfolder")
         dir.mkdirs() // ensures /tmp/files exists
 
         File(dir, "testfile").writeText("Content of test file")
@@ -201,9 +201,9 @@ private fun filesHandler(baseDir: File): HttpHandler =
                     if (path.isNotEmpty()) {
                         append(
                             """<div class="table">
-            <div class="table-header">
-                <a href="../">../</a>
-            </div>
+            <a href="../" class="table-header">
+                <div class="name-and-label-wrapper">../</div>
+            </a>
         </div>""",
                         )
                     }
@@ -215,9 +215,9 @@ private fun filesHandler(baseDir: File): HttpHandler =
                         append(
                             """
             <div class="table">
-                <div class="table-header">
+                <a href="$link" class="table-header">
                     <div class="name-and-label-wrapper">
-                        <a href="$link">$name</a>
+                       $name
                     </div>
                 </div>
             </div>
