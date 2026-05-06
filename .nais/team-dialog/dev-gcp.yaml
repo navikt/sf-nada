@@ -7,6 +7,10 @@ spec:
         permission: READWRITE
       - name: arbeidsgiver_data_dev
         permission: READWRITE
+  envFrom:
+    - configmap: salesforce-common
+    - secret: migration-preprod
+    - secret: sf-nada-preprod
   env:
     - name: POST_TO_BIGQUERY
       value: 'true'

@@ -219,7 +219,7 @@ private fun filesHandler(baseDir: File): HttpHandler =
                     <div class="name-and-label-wrapper">
                        $name
                     </div>
-                </div>
+                </a>
             </div>
         """,
                         )
