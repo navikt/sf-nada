@@ -106,6 +106,13 @@ object AccessTokenHandlerLegacy {
                     val accessTokenResponse = gson.fromJson(response.bodyString(), AccessTokenResponse::class.java)
                     lastTokenPair = Pair(accessTokenResponse.access_token, accessTokenResponse.instance_url)
                     expireTime = (expireMomentSinceEpochInSeconds - 10) * 1000
+                    if (ignoreCache) {
+                        File(
+                            "/tmp/files/testLegacyAccessToken",
+                        ).writeText(
+                            "CONFIG:\nusername: $SFUsername\nclientid: $SFClientID\n\nREQUEST:\n${accessTokenRequest.toMessage()}\n\nRESPONSE:\n${response.toMessage()}",
+                        )
+                    }
                     return lastTokenPair
                 }
             } catch (e: Exception) {

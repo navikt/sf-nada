@@ -184,19 +184,54 @@ private fun filesHandler(baseDir: File): HttpHandler =
 
             val html =
                 buildString {
-                    append("<html><body>")
-                    append("<h2>Index of ${request.uri.path}</h2><ul>")
+                    append(
+                        """
+        <html>
+        <head>
+            <link rel="stylesheet" href="/internal/gui/style.css">
+        </head>
+        <body>
+            <div id="project-title">File Browser</div>
+
+            <div class="dataset-section">
+                <div class="dataset-header">Index of ${request.uri.path}</div>
+    """,
+                    )
 
                     if (path.isNotEmpty()) {
-                        append("""<li><a href="../">../</a></li>""")
+                        append(
+                            """<div class="table">
+            <div class="table-header">
+                <a href="../">../</a>
+            </div>
+        </div>""",
+                        )
                     }
 
                     files.forEach { file ->
                         val name = file.name + if (file.isDirectory) "/" else ""
-                        append("""<li><a href="${request.uri.path.trimEnd('/')}/$name">$name</a></li>""")
+                        val link = "${request.uri.path.trimEnd('/')}/$name"
+
+                        append(
+                            """
+            <div class="table">
+                <div class="table-header">
+                    <div class="name-and-label-wrapper">
+                        <a href="$link">$name</a>
+                    </div>
+                </div>
+            </div>
+        """,
+                        )
                     }
 
-                    append("</ul></body></html>")
+                    append(
+                        """
+            </div>
+        </body>
+        </html>
+    """,
+                    )
                 }
 
             Response(Status.OK)

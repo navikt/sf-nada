@@ -357,3 +357,14 @@ body {
 .modal-action-button:last-child:hover {
     background-color: #565e64;
 }
+
+.table-header a {
+    color: white;
+    text-decoration: none;
+    width: 100%;
+    display: block;
+}
+
+.table-header a:hover {
+    text-decoration: underline;
+}
