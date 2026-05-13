@@ -2,7 +2,7 @@ package no.nav.sf.nada.token
 
 import com.google.gson.Gson
 import mu.KotlinLogging
-import no.nav.sf.nada.config_SF_JWT_USERNAME
+import no.nav.sf.nada.secret_SF_JWT_USERNAME
 import no.nav.sf.nada.config_SF_TOKEN_HOST
 import no.nav.sf.nada.env
 import no.nav.sf.nada.secret_SF_JWT_CLIENT_ID
@@ -14,7 +14,6 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
 import org.http4k.core.body.toBody
-import java.io.File
 import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.Signature
@@ -30,7 +29,7 @@ import java.util.Base64
  */
 class NewAccessTokenHandler(
     private val sfTokenHost: String = env(config_SF_TOKEN_HOST),
-    private val sfUsername: String = env(config_SF_JWT_USERNAME),
+    private val sfUsername: String = env(secret_SF_JWT_USERNAME),
     private val sfClientId: String = env(secret_SF_JWT_CLIENT_ID),
     private val keystoreJksB64: String = env(secret_SF_JWT_KEYSTORE_B64),
     private val keystorePassword: String = env(secret_SF_JWT_KEYSTORE_PASSWORD),

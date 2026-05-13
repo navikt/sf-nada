@@ -2,8 +2,8 @@ package no.nav.sf.nada
 
 import com.google.cloud.bigquery.BigQuery
 import com.google.cloud.bigquery.BigQueryOptions
+import filesHandler
 import mu.KotlinLogging
-import no.nav.sf.nada.HttpCalls.doSFQuery
 import no.nav.sf.nada.bulk.BulkOperation
 import no.nav.sf.nada.gui.Gui
 import no.nav.sf.nada.token.AccessTokenHandler
@@ -71,7 +71,7 @@ class Application {
                     .header("Content-Type", "text/plain; charset=utf-8")
                     .body(predictQueriesForWork())
             },
-            "/internal/user" bind Method.GET to { Response(OK).body(env(config_SF_JWT_USERNAME)) },
+            "/internal/user" bind Method.GET to { Response(OK).body(env(secret_SF_JWT_USERNAME)) },
             "/internal/version" bind Method.GET to { Response(OK).body(env(config_SALESFORCE_API_VERSION)) },
             "/internal/testAccess/old" bind Method.GET to testAccessHandlerOld,
             "/internal/testAccess/new" bind Method.GET to testAccessHandlerNew,
@@ -180,80 +180,4 @@ private val testAccessHandlerMigration: HttpHandler = {
     Response(OK).body("$currentTimeStamp\nTest access (migration) result: " + migrationTokenHandler.testAccess())
 }
 
-private fun filesHandler(baseDir: File): HttpHandler =
-    { request ->
-        val path =
-            request.uri.path
-                .removePrefix("/internal/files")
-                .trim('/')
 
-        val target = if (path.isEmpty()) baseDir else File(baseDir, path)
-
-        if (!target.exists()) {
-            Response(Status.NOT_FOUND).body("Not found")
-        } else if (target.isDirectory) {
-            // List directory contents
-            val files = target.listFiles()?.sortedBy { it.name } ?: emptyList()
-
-            val html =
-                buildString {
-                    append(
-                        """
-        <html>
-        <head>
-            <link rel="stylesheet" href="/internal/gui/style.css">
-        </head>
-        <body>
-            <div id="project-title">File Browser</div>
-
-            <div class="dataset-section">
-                <div class="dataset-header">Index of ${request.uri.path}</div>
-    """,
-                    )
-
-                    if (path.isNotEmpty()) {
-                        append(
-                            """<div class="table">
-            <a href="../" class="table-header">
-                <div class="name-and-label-wrapper">../</div>
-            </a>
-        </div>""",
-                        )
-                    }
-
-                    files.forEach { file ->
-                        val name = file.name + if (file.isDirectory) "/" else ""
-                        val link = "${request.uri.path.trimEnd('/')}/$name"
-
-                        append(
-                            """
-            <div class="table">
-                <a href="$link" class="table-header">
-                    <div class="name-and-label-wrapper">
-                       $name
-                    </div>
-                </a>
-            </div>
-        """,
-                        )
-                    }
-
-                    append(
-                        """
-            </div>
-        </body>
-        </html>
-    """,
-                    )
-                }
-
-            Response(Status.OK)
-                .header("Content-Type", "text/html; charset=utf-8")
-                .body(html)
-        } else {
-            // Serve file content
-            Response(Status.OK)
-                .header("Content-Type", "text/plain; charset=utf-8")
-                .body(target.readText())
-        }
-    }
