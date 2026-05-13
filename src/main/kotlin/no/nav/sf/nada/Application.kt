@@ -13,7 +13,6 @@ import no.nav.sf.nada.token.NewAccessTokenHandler
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Response
-import org.http4k.core.Status
 import org.http4k.core.Status.Companion.OK
 import org.http4k.routing.ResourceLoader
 import org.http4k.routing.bind
@@ -179,5 +178,3 @@ private val testAccessHandlerMigration: HttpHandler = {
         MigratingAccessTokenHandler(new = NewAccessTokenHandler())
     Response(OK).body("$currentTimeStamp\nTest access (migration) result: " + migrationTokenHandler.testAccess())
 }
-
-

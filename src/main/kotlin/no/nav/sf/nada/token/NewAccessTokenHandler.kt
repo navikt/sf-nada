@@ -2,12 +2,12 @@ package no.nav.sf.nada.token
 
 import com.google.gson.Gson
 import mu.KotlinLogging
-import no.nav.sf.nada.secret_SF_JWT_USERNAME
 import no.nav.sf.nada.config_SF_TOKEN_HOST
 import no.nav.sf.nada.env
 import no.nav.sf.nada.secret_SF_JWT_CLIENT_ID
 import no.nav.sf.nada.secret_SF_JWT_KEYSTORE_B64
 import no.nav.sf.nada.secret_SF_JWT_KEYSTORE_PASSWORD
+import no.nav.sf.nada.secret_SF_JWT_USERNAME
 import org.http4k.client.OkHttp
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
