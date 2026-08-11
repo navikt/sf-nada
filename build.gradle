@@ -45,7 +45,8 @@ dependencies {
     implementation "io.github.microutils:kotlin-logging:3.0.5"
     implementation "ch.qos.logback:logback-classic:1.5.34"
     implementation "net.logstash.logback:logstash-logback-encoder:9.0"
-    implementation "tools.jackson.core:jackson-core:3.1.4" //Transient
+    implementation 'tools.jackson.core:jackson-core:3.1.4' // Transient dependency logback-encoder 9.0
+    implementation 'tools.jackson.core:jackson-databind:3.1.5' // Transient dependency logback-encoder 9.0
 
     implementation "io.prometheus:simpleclient_common:0.9.0"
     implementation "io.prometheus:simpleclient_hotspot:0.9.0"
