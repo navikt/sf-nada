@@ -32,6 +32,9 @@ dependencies {
     implementation 'com.google.cloud:google-cloud-bigquery'
     implementation 'io.grpc:grpc-netty-shaded:1.75.0'
 
+    implementation "com.fasterxml.jackson.core:jackson-core:2.21.1" // Transient bigquery
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.22.1" // Transient bigquery
+
     implementation 'org.apache.commons:commons-csv:1.10.0'
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
