@@ -38,22 +38,22 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.13.2'
 
-    implementation "org.http4k:http4k-core:6.39.0.0"
-    implementation "org.http4k:http4k-server-netty:6.39.0.0"
-    implementation "org.http4k:http4k-client-okhttp:6.39.0.0"
+    implementation "org.http4k:http4k-core:6.57.1.0"
+    implementation "org.http4k:http4k-server-netty:6.57.1.0"
+    implementation "org.http4k:http4k-client-okhttp:6.57.1.0"
 
     implementation "io.github.microutils:kotlin-logging:3.0.5"
-    implementation "ch.qos.logback:logback-classic:1.5.32"
+    implementation "ch.qos.logback:logback-classic:1.5.34"
     implementation "net.logstash.logback:logstash-logback-encoder:9.0"
-    implementation "tools.jackson.core:jackson-core:3.1.0" //Transient
+    implementation "tools.jackson.core:jackson-core:3.1.4" //Transient
 
-    implementation "io.prometheus:simpleclient_common:0.8.1"
-    implementation "io.prometheus:simpleclient_hotspot:0.8.1"
+    implementation "io.prometheus:simpleclient_common:0.9.0"
+    implementation "io.prometheus:simpleclient_hotspot:0.9.0"
 
     implementation "com.google.oauth-client:google-oauth-client:1.33.3"
 
     //Transient dep, not really in use:
-    implementation "com.google.protobuf:protobuf-java:3.25.5"
+    implementation "com.google.protobuf:protobuf-java:4.28.2"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
