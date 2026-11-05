@@ -128,7 +128,10 @@ class Application {
     private tailrec fun loop() {
         val stop = ShutdownHook.isActive()
         when {
-            stop -> Unit
+            stop -> {
+                Unit
+            }
+
             !stop -> {
                 if (hasPostedToday) {
                     if (LocalTime.now().inResetRange()) {

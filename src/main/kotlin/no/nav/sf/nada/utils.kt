@@ -39,8 +39,14 @@ fun conditionalWait(ms: Long) =
 
         tailrec suspend fun loop(): Unit =
             when {
-                cr.isCompleted -> Unit
-                ShutdownHook.isActive() -> cr.cancel()
+                cr.isCompleted -> {
+                    Unit
+                }
+
+                ShutdownHook.isActive() -> {
+                    cr.cancel()
+                }
+
                 else -> {
                     delay(250L)
                     loop()

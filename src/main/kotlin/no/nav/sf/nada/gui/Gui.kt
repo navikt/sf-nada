@@ -96,11 +96,13 @@ object Gui {
                 File("/tmp/badRequestLast5Call").writeText(responseTotal.bodyString())
                 success = false
             }
+
             504 -> {
                 result += "Gateway timeout: " + responseTotal.bodyString()
                 File("/tmp/gatewayTimeoutLast5Call").writeText(responseTotal.bodyString())
                 success = false
             }
+
             else -> {
                 try {
                     val obj = JsonParser.parseString(responseTotal.bodyString()) as JsonObject
