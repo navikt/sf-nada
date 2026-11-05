@@ -1,8 +1,8 @@
 plugins {
     id 'application'
     id 'org.jetbrains.kotlin.jvm' version '2.4.21'
-    id 'org.jmailen.kotlinter' version '5.2.0'
-    id 'com.gradleup.shadow' version '8.3.1'
+    id 'org.jmailen.kotlinter' version '5.7.0'
+    id 'com.gradleup.shadow' version '9.6.1'
 }
 
 group = 'no.nav.sf.nada'
@@ -28,35 +28,39 @@ application {
 }
 
 dependencies {
-    implementation platform('com.google.cloud:libraries-bom:26.76.0')
+    implementation platform('com.google.cloud:libraries-bom:26.91.0')
     implementation 'com.google.cloud:google-cloud-bigquery'
-    implementation 'io.grpc:grpc-netty-shaded:1.75.0'
+    implementation 'io.grpc:grpc-netty-shaded:1.85.1'
 
-    implementation "com.fasterxml.jackson.core:jackson-databind:2.22.3" // Transient bigquery
+    implementation "com.google.guava:guava:33.8.0-jre" // Transitive dependency for io.grpc:grpc-netty-shaded:1.85.1
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.22.4" // Transient bigquery
 
-    implementation 'org.apache.commons:commons-csv:1.10.0'
+    implementation 'org.apache.commons:commons-csv:1.14.1'
 
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0"
 
-    implementation 'com.google.code.gson:gson:2.13.2'
+    implementation 'com.google.code.gson:gson:2.15.0'
 
-    implementation "org.http4k:http4k-core:6.57.2.0"
-    implementation "org.http4k:http4k-server-netty:6.57.2.0"
-    implementation "org.http4k:http4k-client-okhttp:6.57.2.0"
+    implementation "org.http4k:http4k-core:6.61.0.0"
+    implementation "org.http4k:http4k-server-netty:6.61.0.0"
+    implementation "org.http4k:http4k-client-okhttp:6.61.0.0"
 
     implementation "io.github.microutils:kotlin-logging:3.0.5"
-    implementation "ch.qos.logback:logback-classic:1.5.34"
+    implementation "ch.qos.logback:logback-classic:1.6.6"
     implementation "net.logstash.logback:logstash-logback-encoder:9.0"
-    implementation 'tools.jackson.core:jackson-databind:3.1.7' // Transient dependency logback-encoder 9.0
+    implementation 'tools.jackson.core:jackson-databind:3.2.4' // Transient dependency logback-encoder 9.0
 
     implementation "io.prometheus:simpleclient_common:0.9.0"
     implementation "io.prometheus:simpleclient_hotspot:0.9.0"
 
-    implementation "com.google.oauth-client:google-oauth-client:1.33.3"
+    implementation "com.google.oauth-client:google-oauth-client:1.39.0"
 
+
+    implementation "com.google.guava:guava:33.8.0-jre" // Transitive dependency for com.google.oauth-client:google-oauth-client:1.39.0
     //Transient dep, not really in use:
-    implementation "com.google.protobuf:protobuf-java:4.28.2"
+    implementation "com.google.protobuf:protobuf-java:4.36.2"
 
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
 }
